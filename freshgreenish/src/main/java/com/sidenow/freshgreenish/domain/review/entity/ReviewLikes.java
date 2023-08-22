@@ -9,17 +9,17 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class ReviewLiked {
+public class ReviewLikes {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "REVIEW_LIKED_ID")
-    private Long reviewLikedId;
+    @Column(name = "REVIEW_LIKES_ID")
+    private Long reviewLikesId;
     private Long userId;
     private Long reviewId;
 
     @Builder
-    public ReviewLiked(Long reviewLikedId, Long userId, Long reviewId) {
-        this.reviewLikedId = reviewLikedId;
+    public ReviewLikes(Long reviewLikesId, Long userId, Long reviewId) {
+        this.reviewLikesId = reviewLikesId;
         this.userId = userId;
         this.reviewId = reviewId;
     }

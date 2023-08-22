@@ -1,4 +1,4 @@
-package com.sidenow.freshgreenish.domain.liked.entity;
+package com.sidenow.freshgreenish.domain.likes.entity;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -9,17 +9,17 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Liked {
+public class Likes {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "LIKED_ID")
-    private Long likedId;
+    @Column(name = "LIKES_ID")
+    private Long likesId;
     private Long userId;
     private Long productId;
 
     @Builder
-    public Liked(Long likedId, Long userId, Long productId) {
-        this.likedId = likedId;
+    public Likes(Long likesId, Long userId, Long productId) {
+        this.likesId = likesId;
         this.userId = userId;
         this.productId = productId;
     }
