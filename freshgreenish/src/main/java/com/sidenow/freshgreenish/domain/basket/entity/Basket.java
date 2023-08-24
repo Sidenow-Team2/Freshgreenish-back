@@ -2,6 +2,7 @@ package com.sidenow.freshgreenish.domain.basket.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.sidenow.freshgreenish.domain.user.entity.User;
+import com.sidenow.freshgreenish.global.utils.Auditable;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -11,7 +12,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Basket {
+public class Basket extends Auditable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "ID")
