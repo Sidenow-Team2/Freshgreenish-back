@@ -8,12 +8,16 @@ import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@SQLDelete(sql = "UPDATE purchase SET deleted = true WHERE id = ?")
+@Where(clause = "deleted = false")
 public class Purchase extends Auditable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
