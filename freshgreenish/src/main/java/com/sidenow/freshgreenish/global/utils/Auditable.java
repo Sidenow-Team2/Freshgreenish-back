@@ -23,6 +23,8 @@ public abstract class Auditable {
     @LastModifiedDate
     private LocalDateTime lastModifiedAt;
 
+    private boolean deleted;
+
     protected Auditable() {
         this.createdAt = LocalDateTime.now();
         this.lastModifiedAt = LocalDateTime.now();
