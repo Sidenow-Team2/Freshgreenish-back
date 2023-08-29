@@ -14,7 +14,7 @@ import org.hibernate.annotations.Where;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @SQLDelete(sql = "UPDATE review_likes SET deleted = true WHERE id = ?")
 @Where(clause = "deleted = false")
-public class ReviewLikes extends Auditable {
+public class ReviewLikes {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "REVIEW_LIKES_ID")
