@@ -45,4 +45,8 @@ public class User {
         this.socialType = socialType;
         this.filePath = filePath;
     }
+
 }
+
+
+
