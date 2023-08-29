@@ -14,3 +14,14 @@ spring:
         default_batch_fetch_size: 100
         format_sql: true
     defer-datasource-initialization: true
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: 176209800309-b114i94scrb4ao5dtrqbqgra55lrsm8i.apps.googleusercontent.com
+            client-secret: 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
+            scope:
+              - email
+              - profile
+
