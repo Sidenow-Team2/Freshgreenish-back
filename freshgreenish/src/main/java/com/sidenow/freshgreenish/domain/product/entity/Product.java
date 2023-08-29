@@ -1,6 +1,7 @@
 package com.sidenow.freshgreenish.domain.product.entity;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.sidenow.freshgreenish.global.utils.Auditable;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -17,7 +18,7 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @SQLDelete(sql = "UPDATE product SET deleted = true WHERE id = ?")
 @Where(clause = "deleted = false")
-public class Product {
+public class Product extends Auditable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "PRODUCT_ID")

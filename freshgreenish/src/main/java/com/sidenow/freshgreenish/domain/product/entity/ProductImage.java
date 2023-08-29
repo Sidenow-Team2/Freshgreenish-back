@@ -1,6 +1,7 @@
 package com.sidenow.freshgreenish.domain.product.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.sidenow.freshgreenish.global.utils.Auditable;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -14,7 +15,7 @@ import org.hibernate.annotations.Where;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @SQLDelete(sql = "UPDATE product_image SET deleted = true WHERE id = ?")
 @Where(clause = "deleted = false")
-public class ProductImage {
+public class ProductImage extends Auditable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "PRODUCT_IMAGE_ID")

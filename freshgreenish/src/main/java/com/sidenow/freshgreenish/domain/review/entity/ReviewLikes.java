@@ -1,5 +1,6 @@
 package com.sidenow.freshgreenish.domain.review.entity;
 
+import com.sidenow.freshgreenish.global.utils.Auditable;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -13,7 +14,7 @@ import org.hibernate.annotations.Where;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @SQLDelete(sql = "UPDATE review_likes SET deleted = true WHERE id = ?")
 @Where(clause = "deleted = false")
-public class ReviewLikes {
+public class ReviewLikes extends Auditable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "REVIEW_LIKES_ID")
