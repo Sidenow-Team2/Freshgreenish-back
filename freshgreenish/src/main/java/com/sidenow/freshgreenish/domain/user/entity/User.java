@@ -40,6 +40,10 @@ public class User extends Auditable {
     @Column(length = 2000)
     private String filePath;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Role role;
+
     @Builder
     public User(String email, String password, String nickname, int saved_money, Boolean isJoinRegular, String socialType, String filePath) {
         this.email = email;
@@ -49,6 +53,10 @@ public class User extends Auditable {
         this.isJoinRegular = isJoinRegular;
         this.socialType = socialType;
         this.filePath = filePath;
+    }
+
+    public String getRoleKey(){
+        return this.role.getKey();
     }
 
 }
