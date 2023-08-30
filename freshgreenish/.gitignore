@@ -6,7 +6,7 @@ build/
 !**/src/test/**/build/
 .idea/
 */.idea
-application-oauth.yml
+./src/main/resources/application-oauth.yml
 
 ### STS ###
 .apt_generated
