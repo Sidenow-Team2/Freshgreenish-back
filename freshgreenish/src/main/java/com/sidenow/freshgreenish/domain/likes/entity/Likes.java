@@ -12,8 +12,6 @@ import org.hibernate.annotations.Where;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@SQLDelete(sql = "UPDATE likes SET deleted = true WHERE id = ?")
-@Where(clause = "deleted = false")
 public class Likes {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
