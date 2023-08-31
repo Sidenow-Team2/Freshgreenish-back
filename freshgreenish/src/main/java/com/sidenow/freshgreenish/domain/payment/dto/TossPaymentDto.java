@@ -1,7 +1,6 @@
 package com.sidenow.freshgreenish.domain.payment.dto;
 
 import com.sidenow.freshgreenish.domain.payment.entity.PaymentInfo;
-import com.sidenow.freshgreenish.domain.payment.enums.PayType;
 import lombok.*;
 
 import java.util.UUID;
@@ -12,9 +11,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 public class TossPaymentDto {
-    private PayType payType;
-
-    private Long amout;
+    private Long amount;
 
     private String orderName;
 
@@ -24,8 +21,7 @@ public class TossPaymentDto {
 
     public PaymentInfo toEntity() {
         return PaymentInfo.builder()
-                .payType(payType)
-                .totalAmount(amout)
+                .totalAmount(amount)
                 .partnerOrderId(UUID.randomUUID().toString())
                 .successStatus(false)
                 .orderName(orderName)

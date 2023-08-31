@@ -18,6 +18,10 @@ public class ProductDbService {
         productRepository.save(product);
     }
 
+    public Product findById(Long productId) {
+        return productRepository.findById(productId).orElseThrow(() -> new RuntimeException("존재 하지 않는 상품입니다."));
+    }
+
     public GetProductDetail getProductDetail(Long productId, Long userId) {
         if (userId != null) return productRepository.getProductDetailUponLogin(productId, userId);
         return productRepository.getProductDetail(productId);
