@@ -6,6 +6,7 @@ import com.sidenow.freshgreenish.domain.user.entity.User;
 import com.sidenow.freshgreenish.global.utils.Auditable;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.SQLDelete;
@@ -24,8 +25,6 @@ public class Purchase extends Auditable {
     @Column(name = "PURCHASE_ID")
     private Long purchaseId;
 
-    private LocalDateTime purchaseDate;
-
     private Boolean regularDeliveryStatus;
 
     @JsonBackReference
@@ -33,7 +32,9 @@ public class Purchase extends Auditable {
     @JoinColumn(name = "USER_ID")
     private User user;
 
-    @OneToOne
-    @JoinColumn(name = "PAYMENT_INFO_ID")
-    private PaymentInfo paymentInfo;
+    @Builder
+    public Purchase(Boolean regularDeliveryStatus, User user) {
+        this.regularDeliveryStatus = regularDeliveryStatus;
+        this.user = user;
+    }
 }

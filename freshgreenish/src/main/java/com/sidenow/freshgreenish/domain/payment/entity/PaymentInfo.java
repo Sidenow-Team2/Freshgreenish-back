@@ -1,7 +1,6 @@
 package com.sidenow.freshgreenish.domain.payment.entity;
 
-import com.sidenow.freshgreenish.domain.payment.dto.TossPaymentResponseDto;
-import com.sidenow.freshgreenish.domain.payment.enums.PayType;
+import com.sidenow.freshgreenish.domain.payment.dto.PaymentResponseDto;
 import com.sidenow.freshgreenish.domain.purchase.entity.Purchase;
 import com.sidenow.freshgreenish.global.utils.Auditable;
 import jakarta.persistence.*;
@@ -51,9 +50,6 @@ public class PaymentInfo extends Auditable {
     @Column(length = 2000)
     private String cancelUrl;
 
-    @Enumerated(EnumType.STRING)
-    private PayType payType;
-
     private Boolean successStatus;
 
     private String orderName;
@@ -69,7 +65,7 @@ public class PaymentInfo extends Auditable {
     private Purchase purchase;
 
     @Builder
-    public PaymentInfo(String cid, String tid, String partnerOrderId, String partnerUserId, String itemName, Integer quantity, Long totalAmount, String approvalUrl, String failUrl, String cancelUrl, PayType payType, Boolean successStatus, String orderName, String orderId, Purchase purchase) {
+    public PaymentInfo(String cid, String tid, String partnerOrderId, String partnerUserId, String itemName, Integer quantity, Long totalAmount, String approvalUrl, String failUrl, String cancelUrl, Boolean successStatus, String orderName, String orderId, Purchase purchase) {
         this.cid = cid;
         this.tid = tid;
         this.partnerOrderId = partnerOrderId;
@@ -80,24 +76,24 @@ public class PaymentInfo extends Auditable {
         this.approvalUrl = approvalUrl;
         this.failUrl = failUrl;
         this.cancelUrl = cancelUrl;
-        this.payType = payType;
         this.successStatus = successStatus;
         this.orderName = orderName;
         this.orderId = orderId;
         this.purchase = purchase;
     }
 
-    public TossPaymentResponseDto toTossPaymentResponseDto(){
-        return TossPaymentResponseDto.builder()
-                .payType(payType.getDescription())
-                .amount(totalAmount)
-                .orderName(orderName)
-                .orderId(orderId)
-                .createdAt(String.valueOf(getCreatedAt()))
-                .cancelYN(successStatus)
-                .failReason(failReasons)
+    public PaymentResponseDto toTossPaymentResponseDto(){
+        return PaymentResponseDto.builder()
+                .totalAmount(totalAmount)
+                .purchaseId(this.purchase.getPurchaseId())
                 .build();
+    }
 
+    public static PaymentInfo toInitial(Purchase purchase, Long totalAmount){
+        return PaymentInfo.builder()
+                .totalAmount(totalAmount)
+                .purchase(purchase)
+                .build();
     }
 }
 
