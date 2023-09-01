@@ -3,10 +3,7 @@ package com.sidenow.freshgreenish.domain.product.entity;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.sidenow.freshgreenish.global.utils.Auditable;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 
@@ -23,54 +20,81 @@ public class Product extends Auditable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "PRODUCT_ID")
     private Long productId;
-    private String name;
-    private String type;
-    private Integer price;
+    private String title; //이름
 
     @Column(length = 2000)
-    private String detail;
+    private String subTitle; //한줄소개
 
-    private Boolean season;
-    private Integer likeCount;
-    private Boolean isRecommendation; //추천상품
-    private Boolean isSubscription; //구독가능여부
-    private Long number; //상품번호
-    private String company; //제조사
-    private Integer weight; //상품무게
-    private String area; //생산지
-    private String productStatus; //상품상태
+    private Integer price; //가격
+    private Integer discountRate = 0; //할인율
+    private Integer discountedPrice; //할인된가격
+
+    @Column(length = 2000)
+    private String detail; //상품 설명
+
+    private String deliveryType; //배송방법
+    private String seller; //판매자
+    private String packageType; //포장타입
+    private String unit; //판매단위
+    private String capacity; //중량/용량
     private String origin; //원산지
+
+    @Column(length = 2000)
+    private String notification; //안내사항
+
+    private Long productNumber; //상품번호
+    private String storageMethod; //상품상태(냉장,실온,냉동)
+    private String brand; //제조사
+    private String weight; //상품무게
     private String variety; //품종
-    private String packages; //포장타입
     private String harvestSeason; //수확시기
-    private Integer capacity; //중량/용량
-    private Integer notification; //안내사항
+
+    private Boolean recommendation; //추천상품
+    private Boolean subscription; //구독가능여부
+
+    @Column(length = 2000)
+    private String productFirstImage; //대표이미지주소
+    @Column(length = 2000)
+    private String productDetailImage; //상세정보이미지주소
+
+    @Setter
+    private Integer likeCount = 0; //좋아요수
+
+    @Setter
+    private Integer purchaseCount = 0; //판매수
 
     @Builder
-    public Product(Long productId, String name, String type, Integer price, String detail,
-                   Boolean season, Integer likeCount, Boolean isRecommendation, Boolean isSubscription, Long number,
-                   String company, Integer weight, String area, String productStatus, String origin,
-                   String variety, String packages, String harvestSeason, Integer capacity, Integer notification) {
+    public Product(Long productId, String title, String subTitle, Integer price, Integer discountedPrice, String detail,
+                   String deliveryType, String seller, String packageType, String unit, String capacity, String origin,
+                   String notification, Long productNumber, String storageMethod, String brand, String weight, Integer discountRate,
+                   String variety, String harvestSeason, Boolean recommendation, Boolean subscription, String productDetailImage) {
         this.productId = productId;
-        this.name = name;
-        this.type = type;
+        this.title = title;
+        this.subTitle = subTitle;
         this.price = price;
+        this.discountRate = discountRate;
+        this.discountedPrice = discountedPrice;
         this.detail = detail;
-        this.season = season;
-        this.likeCount = likeCount;
-        this.isRecommendation = isRecommendation;
-        this.isSubscription = isSubscription;
-        this.number = number;
-        this.company = company;
-        this.weight = weight;
-        this.area = area;
-        this.productStatus = productStatus;
-        this.origin = origin;
-        this.variety = variety;
-        this.packages = packages;
-        this.harvestSeason = harvestSeason;
+
+        this.deliveryType = deliveryType;
+        this.seller = seller;
+        this.packageType = packageType;
+        this.unit = unit;
         this.capacity = capacity;
+        this.origin = origin;
         this.notification = notification;
+
+        this.productNumber = productNumber;
+        this.storageMethod = storageMethod;
+        this.brand = brand;
+        this.weight = weight;
+        this.variety = variety;
+        this.harvestSeason = harvestSeason;
+
+        this.recommendation = recommendation;
+        this.subscription = subscription;
+
+        this.productDetailImage = productDetailImage;
     }
 
     @JsonManagedReference
@@ -85,5 +109,9 @@ public class Product extends Auditable {
     public void editProductImage(List<ProductImage> productImages) {
         this.productImages.clear();
         this.productImages.addAll(productImages);
+    }
+
+    public void setProductFirstImage(List<ProductImage> productImages) {
+        productFirstImage = productImages.get(0).getFilePath();
     }
 }
