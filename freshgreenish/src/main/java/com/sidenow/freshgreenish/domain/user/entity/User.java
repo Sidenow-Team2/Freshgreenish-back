@@ -15,11 +15,12 @@ import org.hibernate.annotations.Where;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @SQLDelete(sql = "UPDATE user SET deleted = true WHERE id = ?")
 @Where(clause = "deleted = false")
+@Table(name = "USERS")
 public class User extends Auditable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "USER_ID")
-    private Long UserId;
+    private Long userId;
 
     @Column(length = 20)
     private String email;
@@ -45,7 +46,7 @@ public class User extends Auditable {
     private Role role;
 
     @Builder
-    public User(String email, String password, String nickname, int saved_money, Boolean isJoinRegular, String socialType, String filePath) {
+    public User(String email, String password, String nickname, int saved_money, Boolean isJoinRegular, String socialType, String filePath, Role role) {
         this.email = email;
         this.password = password;
         this.nickname = nickname;
@@ -53,6 +54,15 @@ public class User extends Auditable {
         this.isJoinRegular = isJoinRegular;
         this.socialType = socialType;
         this.filePath = filePath;
+        this.role = role;
+    }
+
+
+    public User update(String nickname, String filePath) {
+        this.nickname = nickname;
+        this.filePath = filePath;
+
+        return this;
     }
 
     public String getRoleKey(){

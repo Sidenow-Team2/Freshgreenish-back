@@ -1,6 +1,6 @@
 package com.sidenow.freshgreenish.domain.product.controller;
 
-import jakarta.validation.Valid;
+//import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

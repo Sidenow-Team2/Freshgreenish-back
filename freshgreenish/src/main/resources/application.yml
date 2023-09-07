@@ -16,4 +16,9 @@ spring:
     defer-datasource-initialization: true
   profiles:
     include: oauth
+  mustache:
+    # 1. request attribute 의 내용을 model에 추가
+    expose-request-attributes: true
+    # 2. session attribute 의 내용을 model에 추가
+    expose-session-attributes: true
 
