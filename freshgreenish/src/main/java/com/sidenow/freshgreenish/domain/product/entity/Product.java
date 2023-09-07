@@ -1,6 +1,7 @@
 package com.sidenow.freshgreenish.domain.product.entity;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.sidenow.freshgreenish.domain.product.dto.PostProduct;
 import com.sidenow.freshgreenish.global.utils.Auditable;
 import jakarta.persistence.*;
 import lombok.*;
@@ -27,7 +28,9 @@ public class Product extends Auditable {
 
     private Integer price; //가격
     private Integer discountRate = 0; //할인율
-    private Integer discountedPrice; //할인된가격
+
+    @Setter
+    private Integer discountPrice; //할인된가격
 
     @Column(length = 2000)
     private String detail; //상품 설명
@@ -42,7 +45,8 @@ public class Product extends Auditable {
     @Column(length = 2000)
     private String notification; //안내사항
 
-    private Long productNumber; //상품번호
+    @Setter
+    private String productNumber; //상품번호
     private String storageMethod; //상품상태(냉장,실온,냉동)
     private String brand; //제조사
     private String weight; //상품무게
@@ -64,16 +68,16 @@ public class Product extends Auditable {
     private Integer purchaseCount = 0; //판매수
 
     @Builder
-    public Product(Long productId, String title, String subTitle, Integer price, Integer discountedPrice, String detail,
+    public Product(Long productId, String title, String subTitle, Integer price, Integer discountPrice, String detail,
                    String deliveryType, String seller, String packageType, String unit, String capacity, String origin,
-                   String notification, Long productNumber, String storageMethod, String brand, String weight, Integer discountRate,
+                   String notification, String storageMethod, String brand, String weight, Integer discountRate,
                    String variety, String harvestSeason, Boolean recommendation, Boolean subscription, String productDetailImage) {
         this.productId = productId;
         this.title = title;
         this.subTitle = subTitle;
         this.price = price;
         this.discountRate = discountRate;
-        this.discountedPrice = discountedPrice;
+        this.discountPrice = discountPrice;
         this.detail = detail;
 
         this.deliveryType = deliveryType;
@@ -84,7 +88,6 @@ public class Product extends Auditable {
         this.origin = origin;
         this.notification = notification;
 
-        this.productNumber = productNumber;
         this.storageMethod = storageMethod;
         this.brand = brand;
         this.weight = weight;
@@ -113,5 +116,27 @@ public class Product extends Auditable {
 
     public void setProductFirstImage(List<ProductImage> productImages) {
         productFirstImage = productImages.get(0).getFilePath();
+    }
+
+    public void editProduct(PostProduct edit) {
+        this.title = edit.getTitle();
+        this.subTitle = edit.getSubTitle();
+        this.price = edit.getPrice();
+        this.discountRate = edit.getDiscountRate();
+        this.detail = edit.getDetail();
+        this.deliveryType = edit.getDeliveryType();
+        this.seller = edit.getSeller();
+        this.packageType = edit.getPackageType();
+        this.unit = edit.getUnit();
+        this.capacity = edit.getCapacity();
+        this.origin = edit.getOrigin();
+        this.notification = edit.getNotification();
+        this.storageMethod = edit.getStorageMethod();
+        this.brand = edit.getBrand();
+        this.weight = edit.getWeight();
+        this.variety = edit.getVariety();
+        this.harvestSeason = edit.getHarvestSeason();
+        this.recommendation = edit.getRecommendation();
+        this.subscription = edit.getSubscription();
     }
 }

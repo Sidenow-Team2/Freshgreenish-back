@@ -8,10 +8,7 @@ import com.querydsl.core.types.dsl.NumberPath;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import com.sidenow.freshgreenish.domain.product.dto.GetProductCategory;
-import com.sidenow.freshgreenish.domain.product.dto.GetProductDetail;
-import com.sidenow.freshgreenish.domain.product.dto.QGetProductCategory;
-import com.sidenow.freshgreenish.domain.product.dto.QGetProductDetail;
+import com.sidenow.freshgreenish.domain.product.dto.*;
 import jakarta.persistence.EntityManager;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -65,7 +62,7 @@ public class ProductRepositoryImpl implements CustomProductRepository {
                         product.title,
                         product.price,
                         product.discountRate,
-                        product.discountedPrice,
+                        product.discountPrice,
                         product.productDetailImage
                 )).from(product)
                 .distinct()
