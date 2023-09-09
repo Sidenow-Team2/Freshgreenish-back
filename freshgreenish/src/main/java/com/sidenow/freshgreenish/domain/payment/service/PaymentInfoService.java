@@ -8,7 +8,6 @@ import com.sidenow.freshgreenish.domain.purchase.service.PurchaseDbService;
 import com.sidenow.freshgreenish.global.config.TossPaymentConfig;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
-import org.hibernate.Hibernate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,7 +28,7 @@ public class PaymentInfoService {
     private final TossPaymentConfig tossPaymentConfig;
     private final ObjectMapper objectMapper;
     private final EntityManager entityManager;
-
+    private final PaymentInfoDbService paymentInfoDbService;
 
     public String paymentSuccess(String type, String paymentKey, Long purchaseId, String orderId, Long totalAmount) {
         Purchase purchase = purchaseDbService.findById(purchaseId).orElseThrow(() -> new RuntimeException("존재 하지 않는 구매 번호 입니다."));
@@ -83,4 +82,12 @@ public class PaymentInfoService {
     }
 
 
+    public void paymentFail(String code, String message, String orderId) {
+        PaymentInfo paymentInfo = paymentInfoDbService.findByPartnerOrderId(orderId).orElseThrow(() -> {
+            throw  new RuntimeException("존재하지 않는 거래 입니다.");
+        });
+        paymentInfo.setSuccessStatus(false);
+        paymentInfo.setFailReasons(message);
+        entityManager.merge(paymentInfo);
+    }
 }

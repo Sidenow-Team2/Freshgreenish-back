@@ -5,6 +5,8 @@ import com.sidenow.freshgreenish.domain.payment.repository.PaymentInfoRepository
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 public class PaymentInfoDbService {
@@ -17,5 +19,9 @@ public class PaymentInfoDbService {
 
     public void flush() {
         paymentInfoRepository.flush();
+    }
+
+    public Optional<PaymentInfo> findByPartnerOrderId(String orderId) {
+        return paymentInfoRepository.findByPartnerOrderId(orderId);
     }
 }
