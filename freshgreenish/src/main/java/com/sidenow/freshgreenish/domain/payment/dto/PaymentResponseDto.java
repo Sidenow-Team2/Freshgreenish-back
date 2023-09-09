@@ -9,6 +9,7 @@ import lombok.*;
 @NoArgsConstructor
 public class PaymentResponseDto {
     private Long totalAmount;
+    private String orderId;
     private Long purchaseId;
     private String successUrl;
     private String failUrl;

@@ -24,7 +24,6 @@ public class TossPaymentDto {
                 .totalAmount(amount)
                 .partnerOrderId(UUID.randomUUID().toString())
                 .successStatus(false)
-                .orderName(orderName)
                 .build();
     }
 }

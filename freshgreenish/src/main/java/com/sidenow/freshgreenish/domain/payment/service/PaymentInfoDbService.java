@@ -14,4 +14,8 @@ public class PaymentInfoDbService {
     public PaymentInfo save(PaymentInfo paymentInfo) {
         return paymentInfoRepository.save(paymentInfo);
     }
+
+    public void flush() {
+        paymentInfoRepository.flush();
+    }
 }

@@ -32,6 +32,10 @@ public class Purchase extends Auditable {
     @JoinColumn(name = "USER_ID")
     private User user;
 
+    @OneToOne(mappedBy = "purchase", cascade = CascadeType.ALL, orphanRemoval = true)
+    private PaymentInfo paymentInfo;
+
+
     @Builder
     public Purchase(Boolean regularDeliveryStatus, User user) {
         this.regularDeliveryStatus = regularDeliveryStatus;

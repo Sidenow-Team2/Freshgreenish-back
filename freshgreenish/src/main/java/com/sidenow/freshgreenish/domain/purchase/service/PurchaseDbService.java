@@ -5,6 +5,8 @@ import com.sidenow.freshgreenish.domain.purchase.repository.PurchaseRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 public class PurchaseDbService {
@@ -15,4 +17,7 @@ public class PurchaseDbService {
         return purchaseRepository.save(purchase);
     }
 
+    public Optional<Purchase> findById(Long purchaseId) {
+        return purchaseRepository.findById(purchaseId);
+    }
 }
