@@ -1,4 +1,4 @@
-package com.sidenow.freshgreenish.config.security.dto;
+package com.sidenow.freshgreenish.global.config.auth.dto;
 
 import com.sidenow.freshgreenish.domain.user.entity.Role;
 import com.sidenow.freshgreenish.domain.user.entity.User;

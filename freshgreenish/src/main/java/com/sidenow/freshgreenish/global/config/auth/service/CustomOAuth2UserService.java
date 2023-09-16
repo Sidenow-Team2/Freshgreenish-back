@@ -1,9 +1,8 @@
-package com.sidenow.freshgreenish.config.security.service;
+package com.sidenow.freshgreenish.global.config.auth.service;
 
-// 가입 및 정보 수정, 세션 저장
 
-import com.sidenow.freshgreenish.config.security.dto.OAuthAttributes;
-import com.sidenow.freshgreenish.config.security.dto.SessionUser;
+import com.sidenow.freshgreenish.global.config.auth.dto.OAuthAttributes;
+import com.sidenow.freshgreenish.global.config.auth.dto.SessionUser;
 import com.sidenow.freshgreenish.domain.user.entity.User;
 import com.sidenow.freshgreenish.domain.user.repository.UserRepository;
 import jakarta.servlet.http.HttpSession;
@@ -32,7 +31,7 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
         OAuth2UserService<OAuth2UserRequest, OAuth2User> delegate = new DefaultOAuth2UserService();
         OAuth2User oAuth2User = delegate.loadUser(userRequest);
 
-        String registrationId = userRequest.getClientRegistration().getRegistrationId();
+        String registrationId = userRequest.getClientRegistration().getRegistrationId(); // google
         String userNameAttributeName = userRequest.getClientRegistration().getProviderDetails()
                 .getUserInfoEndpoint().getUserNameAttributeName();
 

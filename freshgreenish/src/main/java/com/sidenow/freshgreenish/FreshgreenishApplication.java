@@ -2,11 +2,13 @@ package com.sidenow.freshgreenish;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.annotation.PropertySource;
+//import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
+//import org.springframework.context.annotation.PropertySource;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
-@SpringBootApplication
+//@SpringBootApplication(exclude = SecurityAutoConfiguration.class)
 @EnableJpaAuditing
+@SpringBootApplication
 public class FreshgreenishApplication {
 
 	public static void main(String[] args) {
