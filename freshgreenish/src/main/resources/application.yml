@@ -14,3 +14,10 @@ spring:
         default_batch_fetch_size: 100
         format_sql: true
     defer-datasource-initialization: true
+
+payment:
+  toss:
+    test_client_api_key: test_ck_QbgMGZzorzebyb47vGKVl5E1em4d
+    test_secrete_api_key: test_sk_Z1aOwX7K8me4B46yGNA8yQxzvNPG
+    success_url: "http://localhost:8080/payment/toss/success"
+    fail_url: "http://localhost:8080/payment/toss/fail"
