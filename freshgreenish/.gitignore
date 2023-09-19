@@ -1,10 +1,14 @@
 HELP.md
 .gradle
+gradle
 build/
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
 !**/src/test/**/build/
 .idea/
+*/.idea
+
+src/main/resources/application-oauth.yml
 
 ### STS ###
 .apt_generated
