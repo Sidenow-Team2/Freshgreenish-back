@@ -4,6 +4,8 @@ import com.sidenow.freshgreenish.domain.product.dto.GetProductCategory;
 import com.sidenow.freshgreenish.domain.product.dto.GetProductDetail;
 import com.sidenow.freshgreenish.domain.product.entity.Product;
 import com.sidenow.freshgreenish.domain.product.repository.ProductRepository;
+import com.sidenow.freshgreenish.global.exception.BusinessLogicException;
+import com.sidenow.freshgreenish.global.exception.ExceptionCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -16,6 +18,11 @@ public class ProductDbService {
 
     public void saveProduct(Product product) {
         productRepository.save(product);
+    }
+
+    public Product ifExistsReturnProduct(Long productId) {
+        return productRepository.findById(productId)
+                .orElseThrow(() -> new BusinessLogicException(ExceptionCode.PRODUCT_NOT_FOUND));
     }
 
     public GetProductDetail getProductDetail(Long productId, Long userId) {

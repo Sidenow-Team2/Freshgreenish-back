@@ -20,7 +20,6 @@ public class PostProduct {
     private String origin; //원산지
     private String notification; //안내사항
 
-    private Long productNumber; //상품번호
     private String storageMethod; //상품상태(냉장,실온,냉동)
     private String brand; //제조사
     private String weight; //상품무게
