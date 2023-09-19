@@ -22,6 +22,7 @@ public class ProductDbService {
 
     public Product findById(Long productId) {
         return productRepository.findById(productId).orElseThrow(() -> new RuntimeException("존재 하지 않는 상품입니다."));
+        
    }
   
     public Product ifExistsReturnProduct(Long productId) {
