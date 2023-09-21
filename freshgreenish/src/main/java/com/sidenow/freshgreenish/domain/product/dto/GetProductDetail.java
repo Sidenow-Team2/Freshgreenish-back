@@ -28,7 +28,7 @@ public class GetProductDetail {
     private String origin; //원산지
     private String notification; //안내사항
 
-    private Long productNumber; //상품번호
+    private String productNumber; //상품번호
     private String storageMethod; //상품상태(냉장,실온,냉동)
     private String brand; //제조사
     private String weight; //상품무게
@@ -52,7 +52,7 @@ public class GetProductDetail {
         this.subTitle = product.getSubTitle();
         this.price = product.getPrice();
         this.discountRate = product.getDiscountRate();
-        this.discountedPrice = product.getDiscountedPrice();
+        this.discountedPrice = product.getDiscountPrice();
         this.detail = product.getDetail();
         this.deliveryType = product.getDeliveryType();
         this.seller = product.getSeller();

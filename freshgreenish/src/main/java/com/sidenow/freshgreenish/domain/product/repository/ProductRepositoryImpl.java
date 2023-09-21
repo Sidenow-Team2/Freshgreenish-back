@@ -8,10 +8,7 @@ import com.querydsl.core.types.dsl.NumberPath;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import com.sidenow.freshgreenish.domain.product.dto.GetProductCategory;
-import com.sidenow.freshgreenish.domain.product.dto.GetProductDetail;
-import com.sidenow.freshgreenish.domain.product.dto.QGetProductCategory;
-import com.sidenow.freshgreenish.domain.product.dto.QGetProductDetail;
+import com.sidenow.freshgreenish.domain.product.dto.*;
 import jakarta.persistence.EntityManager;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -40,7 +37,8 @@ public class ProductRepositoryImpl implements CustomProductRepository {
                         Expressions.constant(false)
                 )).from(product)
                 .distinct()
-                .where(product.productId.eq(productId))
+                .where(product.productId.eq(productId)
+                        .and(product.deleted.eq(false)))
                 .fetchOne();
     }
 
@@ -51,27 +49,75 @@ public class ProductRepositoryImpl implements CustomProductRepository {
                         product,
                         isLikes(product.productId, userId)
                 )).from(product)
-                .where(product.productId.eq(productId))
+                .where(product.productId.eq(productId)
+                        .and(product.deleted.eq(false)))
                 .fetchOne();
     }
 
     @Override
-    public Page<GetProductCategory> getProductCategory(String category, Integer sortId, Pageable pageable) {
-        OrderSpecifier[] orderSpecifiers = createOrderSpecifier(sortId);
-
+    public Page<GetProductCategory> getProductCategoryOrderByProductId(String category, Pageable pageable) {
         List<GetProductCategory> results = queryFactory
                 .select(new QGetProductCategory(
                         product.productId,
                         product.title,
                         product.price,
                         product.discountRate,
-                        product.discountedPrice,
+                        product.discountPrice,
                         product.productDetailImage
                 )).from(product)
                 .distinct()
                 .where(product.origin.eq(category)
-                        .or(product.storageMethod.eq(category)))
-                .orderBy(orderSpecifiers)
+                        .or(product.storageMethod.eq(category))
+                        .and(product.deleted.eq(false)))
+                .orderBy(product.productId.desc())
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+
+        long total = results.size();
+        return new PageImpl<>(results, pageable, total);
+    }
+
+    @Override
+    public Page<GetProductCategory> getProductCategoryOrderByPurchaseCount(String category, Pageable pageable) {
+        List<GetProductCategory> results = queryFactory
+                .select(new QGetProductCategory(
+                        product.productId,
+                        product.title,
+                        product.price,
+                        product.discountRate,
+                        product.discountPrice,
+                        product.productDetailImage
+                )).from(product)
+                .distinct()
+                .where(product.origin.eq(category)
+                        .or(product.storageMethod.eq(category))
+                        .and(product.deleted.eq(false)))
+                .orderBy(product.purchaseCount.desc())
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+
+        long total = results.size();
+        return new PageImpl<>(results, pageable, total);
+    }
+
+    @Override
+    public Page<GetProductCategory> getProductCategoryOrderByLikeCount(String category, Pageable pageable) {
+        List<GetProductCategory> results = queryFactory
+                .select(new QGetProductCategory(
+                        product.productId,
+                        product.title,
+                        product.price,
+                        product.discountRate,
+                        product.discountPrice,
+                        product.productDetailImage
+                )).from(product)
+                .distinct()
+                .where(product.origin.eq(category)
+                        .or(product.storageMethod.eq(category))
+                        .and(product.deleted.eq(false)))
+                .orderBy(product.likeCount.desc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
@@ -87,15 +133,5 @@ public class ProductRepositoryImpl implements CustomProductRepository {
                                 .otherwise(false)
                 ).from(likes)
                 .where(likes.productId.eq(productId).and(likes.userId.eq(userId)));
-    }
-
-    private OrderSpecifier[] createOrderSpecifier(Integer sortId) {
-        List<OrderSpecifier> orderSpecifiers = new ArrayList<>();
-
-        if (sortId == 2) orderSpecifiers.add(new OrderSpecifier(Order.DESC, product.purchaseCount));
-        else if (sortId == 3) orderSpecifiers.add(new OrderSpecifier(Order.DESC, product.likeCount));
-        else orderSpecifiers.add(new OrderSpecifier(Order.DESC, product.productId));
-
-        return orderSpecifiers.toArray(new OrderSpecifier[orderSpecifiers.size()]);
     }
 }

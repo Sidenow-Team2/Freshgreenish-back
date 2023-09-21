@@ -4,6 +4,8 @@ import com.sidenow.freshgreenish.domain.product.dto.GetProductCategory;
 import com.sidenow.freshgreenish.domain.product.dto.GetProductDetail;
 import com.sidenow.freshgreenish.domain.product.entity.Product;
 import com.sidenow.freshgreenish.domain.product.repository.ProductRepository;
+import com.sidenow.freshgreenish.global.exception.BusinessLogicException;
+import com.sidenow.freshgreenish.global.exception.ExceptionCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -18,12 +20,24 @@ public class ProductDbService {
         productRepository.save(product);
     }
 
+    public Product findById(Long productId) {
+        return productRepository.findById(productId).orElseThrow(() -> new RuntimeException("존재 하지 않는 상품입니다."));
+        
+   }
+  
+    public Product ifExistsReturnProduct(Long productId) {
+        return productRepository.findById(productId)
+                .orElseThrow(() -> new BusinessLogicException(ExceptionCode.PRODUCT_NOT_FOUND));
+    }
+
     public GetProductDetail getProductDetail(Long productId, Long userId) {
         if (userId != null) return productRepository.getProductDetailUponLogin(productId, userId);
         return productRepository.getProductDetail(productId);
     }
 
     public Page<GetProductCategory> getProductCategory(String category, Integer sortId, Pageable pageable) {
-        return productRepository.getProductCategory(category, sortId, pageable);
+        if (sortId == 2) return productRepository.getProductCategoryOrderByPurchaseCount(category, pageable);
+        else if (sortId == 3) return productRepository.getProductCategoryOrderByLikeCount(category, pageable);
+        else return productRepository.getProductCategoryOrderByProductId(category, pageable);
     }
 }
