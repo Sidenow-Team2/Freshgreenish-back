@@ -23,20 +23,20 @@ public class ProductController {
     private final ProductService productService;
     private final ProductDbService productDbService;
 
-    @PostMapping("/master/product/{productId}")
-    public ResponseEntity editProduct(@PathVariable("productId") Long productId,
-                                      @RequestBody @Valid PostProduct edit) {
-        // TODO : 이미지 등록 기능 추가 예정
-        productService.editProduct(productId, edit);
-        return ResponseEntity.ok().build();
-    }
-
     @PostMapping("/master/product")
     public ResponseEntity postProduct(@RequestBody @Valid PostProduct post) {
                                     /* @RequestPart(required = false, value = "productImage") List<MultipartFile> productImage */
                                     /* @RequestPart(required = false, value = "productDetailImage") MultipartFile productDetailImage */
+        // TODO : 이미지 등록 기능 추가 예정
         productService.postProduct(post);
         return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+    @PostMapping("/master/product/{productId}")
+    public ResponseEntity editProduct(@PathVariable("productId") Long productId,
+                                      @RequestBody @Valid PostProduct edit) {
+        productService.editProduct(productId, edit);
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping("/product/{productId}")

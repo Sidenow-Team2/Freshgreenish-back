@@ -14,8 +14,6 @@ import java.util.List;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@SQLDelete(sql = "UPDATE product SET deleted = true WHERE id = ?")
-@Where(clause = "deleted = false")
 public class Product extends Auditable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

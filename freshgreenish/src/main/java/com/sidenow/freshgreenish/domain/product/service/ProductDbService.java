@@ -36,6 +36,8 @@ public class ProductDbService {
     }
 
     public Page<GetProductCategory> getProductCategory(String category, Integer sortId, Pageable pageable) {
-        return productRepository.getProductCategory(category, sortId, pageable);
+        if (sortId == 2) return productRepository.getProductCategoryOrderByPurchaseCount(category, pageable);
+        else if (sortId == 3) return productRepository.getProductCategoryOrderByLikeCount(category, pageable);
+        else return productRepository.getProductCategoryOrderByProductId(category, pageable);
     }
 }

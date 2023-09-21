@@ -47,7 +47,6 @@ public class ProductService {
     }
 
     public void restoreProduct(Long productId) {
-        // TODO : Product 조회 안됨(수정 필요)
         Product product = productDbService.ifExistsReturnProduct(productId);
         product.setDeleted(false);
 
