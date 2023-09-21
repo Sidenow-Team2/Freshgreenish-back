@@ -17,32 +17,17 @@ spring:
         default_batch_fetch_size: 100
         format_sql: true
     defer-datasource-initialization: true
-<<<<<<< HEAD
-=======
-
->>>>>>> 82204d7a60aaf24f701270d4ab91fcd273fb1401
   profiles:
     include: oauth
-  mustache:
-    # 1. request attribute 의 내용을 model에 추가
-    expose-request-attributes: true
-    # 2. session attribute 의 내용을 model에 추가
-    expose-session-attributes: true
   thymeleaf:
     prefix: classpath:/templates/
     check-template-location: false
     suffix: .html
     mode: HTML
     cache: false
-
-<<<<<<< HEAD
-=======
-
 payment:
   toss:
     test_client_api_key: test_ck_QbgMGZzorzebyb47vGKVl5E1em4d
     test_secrete_api_key: test_sk_Z1aOwX7K8me4B46yGNA8yQxzvNPG
     success_url: "http://localhost:8080/payment/toss/success"
     fail_url: "http://localhost:8080/payment/toss/fail"
-
->>>>>>> 82204d7a60aaf24f701270d4ab91fcd273fb1401
