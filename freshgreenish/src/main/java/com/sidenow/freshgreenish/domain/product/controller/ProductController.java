@@ -1,8 +1,8 @@
 package com.sidenow.freshgreenish.domain.product.controller;
 
-<<<<<<< HEAD
+
 //import jakarta.validation.Valid;
-=======
+
 import com.sidenow.freshgreenish.domain.dto.MultiResponseDto;
 import com.sidenow.freshgreenish.domain.dto.SingleResponseDto;
 import com.sidenow.freshgreenish.domain.product.dto.GetProductDetail;
@@ -11,7 +11,6 @@ import com.sidenow.freshgreenish.domain.product.dto.PostProduct;
 import com.sidenow.freshgreenish.domain.product.service.ProductDbService;
 import com.sidenow.freshgreenish.domain.product.service.ProductService;
 import jakarta.validation.Valid;
->>>>>>> d992d1ff4ca4215a6a1b5317068c84026c74c2fa
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
