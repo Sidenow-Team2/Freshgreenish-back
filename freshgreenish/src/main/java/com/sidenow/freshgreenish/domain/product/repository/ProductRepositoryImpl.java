@@ -1,7 +1,5 @@
 package com.sidenow.freshgreenish.domain.product.repository;
 
-import com.querydsl.core.types.Order;
-import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.CaseBuilder;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.core.types.dsl.NumberPath;
@@ -124,6 +122,15 @@ public class ProductRepositoryImpl implements CustomProductRepository {
 
         long total = results.size();
         return new PageImpl<>(results, pageable, total);
+    }
+
+    @Override
+    public Boolean isDeleted(Long productId) {
+        return queryFactory
+                .select(product.deleted)
+                .from(product)
+                .where(product.productId.eq(productId))
+                .fetchOne();
     }
 
     private JPQLQuery<Boolean> isLikes(NumberPath<Long> productId, Long userId) {

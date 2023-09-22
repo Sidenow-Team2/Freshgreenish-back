@@ -9,7 +9,19 @@ public interface CustomProductRepository {
     GetProductDetail getProductDetail(Long productId);
     GetProductDetail getProductDetailUponLogin(Long productId, Long userId);
 
+<<<<<<< Updated upstream
     Page<GetProductCategory> getProductCategoryOrderByProductId(String category, Pageable pageable);
     Page<GetProductCategory> getProductCategoryOrderByPurchaseCount(String category, Pageable pageable);
     Page<GetProductCategory> getProductCategoryOrderByLikeCount(String category, Pageable pageable);
+=======
+<<<<<<< Updated upstream
+    Page<GetProductCategory> getProductCategory(String category, Integer sortId, Pageable pageable);
+=======
+    Page<GetProductCategory> getProductCategoryOrderByProductId(String category, Pageable pageable);
+    Page<GetProductCategory> getProductCategoryOrderByPurchaseCount(String category, Pageable pageable);
+    Page<GetProductCategory> getProductCategoryOrderByLikeCount(String category, Pageable pageable);
+
+    Boolean isDeleted(Long productId);
+>>>>>>> Stashed changes
+>>>>>>> Stashed changes
 }

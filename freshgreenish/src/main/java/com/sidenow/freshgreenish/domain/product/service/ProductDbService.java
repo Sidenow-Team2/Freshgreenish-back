@@ -30,6 +30,13 @@ public class ProductDbService {
                 .orElseThrow(() -> new BusinessLogicException(ExceptionCode.PRODUCT_NOT_FOUND));
     }
 
+    public void ifProductIsDeletedThrowError(Long productId) {
+        Boolean isDeleted = productRepository.isDeleted(productId);
+        if (isDeleted.equals(true)) {
+                throw new BusinessLogicException(ExceptionCode.PRODUCT_NOT_FOUND);
+        }
+    }
+
     public GetProductDetail getProductDetail(Long productId, Long userId) {
         if (userId != null) return productRepository.getProductDetailUponLogin(productId, userId);
         return productRepository.getProductDetail(productId);
