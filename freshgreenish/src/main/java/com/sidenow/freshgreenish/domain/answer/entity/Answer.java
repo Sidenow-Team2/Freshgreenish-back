@@ -1,5 +1,6 @@
 package com.sidenow.freshgreenish.domain.answer.entity;
 
+import com.sidenow.freshgreenish.domain.answer.dto.PostAnswer;
 import com.sidenow.freshgreenish.global.utils.Auditable;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -32,4 +33,7 @@ public class Answer extends Auditable {
         this.questionId = questionId;
     }
 
+    public void editAnswer(PostAnswer post) {
+        this.comment = post.getComment();
+    }
 }
