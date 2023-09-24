@@ -125,7 +125,8 @@ public class ReviewRepositoryImpl implements CustomReviewRepository {
                 .select(new QGetReviewOnMyPage(
                         review,
                         product.productId,
-                        product.title
+                        product.title,
+                        product.productFirstImage
                 )).from(review)
                 .leftJoin(product).on(review.productId.eq(product.productId))
                 .where(review.userId.eq(userId))

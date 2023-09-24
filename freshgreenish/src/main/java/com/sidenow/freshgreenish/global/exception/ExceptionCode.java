@@ -21,9 +21,9 @@ public enum ExceptionCode {
     NICKNAME_ALREADY_EXIST(504, "이미 존재하는 닉네임입니다."),
     RESOURCE_ALREADY_EXIST(504, "이미 존재하는 데이터입니다."),
 
-    PRODUCT_ALREADY_EXIST(504, "이미 삭제된 상품입니다."),
-    PRODUCT_ALREADY_RESTORE(504, "이미 존재하는 상품입니다."),
-    REVIEW_ALREADY_EXIST(504, "이미 삭제된 리뷰입니다."),
+    PRODUCT_ALREADY_DELETE(504, "이미 삭제된 상품입니다."),
+    PRODUCT_ALREADY_EXIST(504, "이미 존재하는 상품입니다."),
+    REVIEW_ALREADY_DELETE(504, "이미 삭제된 리뷰입니다."),
     ANSWER_ALREADY_EXIST(504, "이미 삭제된 답변입니다."),
     QUESTION_ALREADY_EXIST(504, "이미 삭제된 질문입니다."),
 

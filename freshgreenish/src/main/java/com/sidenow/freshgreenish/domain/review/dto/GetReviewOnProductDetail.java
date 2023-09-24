@@ -7,6 +7,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Getter
 @NoArgsConstructor
@@ -20,6 +22,7 @@ public class GetReviewOnProductDetail {
     private LocalDateTime lastModifiedAt;
     private Integer likeCount;
     private Boolean isReviewLikes;
+    private List<ReviewImageVO> reviewImage;
 
     @Builder
     @QueryProjection
@@ -33,5 +36,11 @@ public class GetReviewOnProductDetail {
         this.userId = userId;
         this.nickname = nickname;
         this.isReviewLikes = isReviewLikes;
+        this.reviewImage = review.getReviewImages().stream()
+                .map(reviewImage -> ReviewImageVO.builder()
+                        .reviewImageId(reviewImage.getReviewImageId())
+                        .filePath(reviewImage.getFilePath())
+                        .build())
+                .collect(Collectors.toList());
     }
 }
