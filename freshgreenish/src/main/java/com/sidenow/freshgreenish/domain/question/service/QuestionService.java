@@ -1,5 +1,13 @@
 package com.sidenow.freshgreenish.domain.question.service;
 
+import com.sidenow.freshgreenish.domain.product.service.ProductDbService;
+import com.sidenow.freshgreenish.domain.question.dto.PostQuestion;
+import com.sidenow.freshgreenish.domain.question.entity.Question;
+import com.sidenow.freshgreenish.domain.question.entity.QuestionAnswerStatus;
+import com.sidenow.freshgreenish.domain.user.repository.UserRepository;
+import com.sidenow.freshgreenish.global.exception.BusinessLogicException;
+import com.sidenow.freshgreenish.global.exception.ExceptionCode;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -9,5 +17,54 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class QuestionService {
     private final QuestionDbService questionDbService;
+    private final ProductDbService productDbService;
+    private final UserRepository userRepository;
 
+    @Transactional
+    public void postQuestion(Long userId, Long productId, PostQuestion post) {
+        productDbService.ifProductIsDeletedThrowError(productId);
+
+        Question findQuestion = Question.builder()
+                .questionTitle(post.getQuestionTitle())
+                .questionContent(post.getQuestionContent())
+                .isSecretMessage(post.getIsSecretMessage())
+                .productId(productId)
+                .userId(userId)
+                .build();
+
+        findQuestion.setStatus(QuestionAnswerStatus.WAITING_FOR_ANSWER);
+
+        questionDbService.saveQuestion(findQuestion);
+    }
+
+    @Transactional
+    public void editQuestion(Long questionId, PostQuestion edit) {
+        Question findQuestion = questionDbService.ifExistsReturnQuestion(questionId);
+        productDbService.ifProductIsDeletedThrowError(findQuestion.getProductId());
+
+        if (findQuestion.getQuestionAnswerStatus().getStatus().equals(QuestionAnswerStatus.END_OF_ANSWER)) {
+            throw new BusinessLogicException(ExceptionCode.UNAUTHORIZED_FOR_UPDATE);
+        }
+
+        findQuestion.editQuestion(edit);
+
+        questionDbService.saveQuestion(findQuestion);
+    }
+
+    @Transactional
+    public void deleteQuestion(Long userId, Long questionId) {
+        Question findQuestion = questionDbService.ifExistsReturnQuestion(questionId);
+
+        if (!findQuestion.getUserId().equals(userId)) {
+            throw new BusinessLogicException(ExceptionCode.UNAUTHORIZED_FOR_DELETE);
+        }
+
+        if (findQuestion.getDeleted().equals(true)) {
+            throw new BusinessLogicException(ExceptionCode.QUESTION_ALREADY_EXIST);
+        }
+
+        findQuestion.setDeleted(true);
+
+        questionDbService.saveQuestion(findQuestion);
+    }
 }
