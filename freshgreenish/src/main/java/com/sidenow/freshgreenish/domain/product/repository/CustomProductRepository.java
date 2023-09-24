@@ -8,8 +8,9 @@ import org.springframework.data.domain.Pageable;
 public interface CustomProductRepository {
     GetProductDetail getProductDetail(Long productId);
     GetProductDetail getProductDetailUponLogin(Long productId, Long userId);
-
     Page<GetProductCategory> getProductCategoryOrderByProductId(String category, Pageable pageable);
     Page<GetProductCategory> getProductCategoryOrderByPurchaseCount(String category, Pageable pageable);
     Page<GetProductCategory> getProductCategoryOrderByLikeCount(String category, Pageable pageable);
+    Boolean isDeleted(Long productId);
+
 }

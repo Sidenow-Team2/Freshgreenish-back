@@ -2,6 +2,8 @@ package com.sidenow.freshgreenish.domain.product.service;
 
 import com.sidenow.freshgreenish.domain.product.dto.PostProduct;
 import com.sidenow.freshgreenish.domain.product.entity.Product;
+import com.sidenow.freshgreenish.global.exception.BusinessLogicException;
+import com.sidenow.freshgreenish.global.exception.ExceptionCode;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,39 +20,50 @@ public class ProductService {
     // TODO : 이미지 등록 추가 예정
     @Transactional
     public void postProduct(PostProduct post) {
-        Product product = returnProductFromPost(post);
+        Product findProduct = returnProductFromPost(post);
         Integer discountPrice =
-                calculateDiscountPrice(post.getPrice(), product.getPrice(), post.getDiscountRate(), product.getDiscountRate());
-        product.setDiscountPrice(discountPrice);
-        product.setProductNumber(createProductNumber(product.getCreatedAt()));
+                calculateDiscountPrice(post.getPrice(), findProduct.getPrice(), post.getDiscountRate(), findProduct.getDiscountRate());
+        findProduct.setDiscountPrice(discountPrice);
+        findProduct.setProductNumber(createProductNumber(findProduct.getCreatedAt()));
 
-        productDbService.saveProduct(product);
+        productDbService.saveProduct(findProduct);
     }
 
     @Transactional
     public void editProduct(Long productId, PostProduct edit) {
-        Product product = productDbService.ifExistsReturnProduct(productId);
-        product.editProduct(edit);
+        Product findProduct = productDbService.ifExistsReturnProduct(productId);
+        findProduct.editProduct(edit);
         Integer discountPrice =
-                calculateDiscountPrice(edit.getPrice(), product.getPrice(), edit.getDiscountRate(), product.getDiscountRate());
-        product.setDiscountPrice(discountPrice);
+                calculateDiscountPrice(edit.getPrice(), findProduct.getPrice(), edit.getDiscountRate(), findProduct.getDiscountRate());
+        findProduct.setDiscountPrice(discountPrice);
 
-        productDbService.saveProduct(product);
+        productDbService.saveProduct(findProduct);
     }
 
     @Transactional
     public void deleteProduct(Long productId) {
-        Product product = productDbService.ifExistsReturnProduct(productId);
-        product.setDeleted(true);
+        Product findProduct = productDbService.ifExistsReturnProduct(productId);
 
-        productDbService.saveProduct(product);
+        if (findProduct.getDeleted().equals(true)) {
+            throw new BusinessLogicException(ExceptionCode.PRODUCT_ALREADY_EXIST);
+        }
+
+        findProduct.setDeleted(true);
+
+        productDbService.saveProduct(findProduct);
     }
 
     public void restoreProduct(Long productId) {
-        Product product = productDbService.ifExistsReturnProduct(productId);
-        product.setDeleted(false);
+        // TODO : Product 조회 안됨(수정 필요)
+        Product findProduct = productDbService.ifExistsReturnProduct(productId);
 
-        productDbService.saveProduct(product);
+        if (findProduct.getDeleted().equals(true)) {
+            throw new BusinessLogicException(ExceptionCode.PRODUCT_ALREADY_RESTORE);
+        }
+
+        findProduct.setDeleted(false);
+
+        productDbService.saveProduct(findProduct);
     }
 
     private Product returnProductFromPost(PostProduct post) {

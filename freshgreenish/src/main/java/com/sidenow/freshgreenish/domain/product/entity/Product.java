@@ -5,8 +5,6 @@ import com.sidenow.freshgreenish.domain.product.dto.PostProduct;
 import com.sidenow.freshgreenish.global.utils.Auditable;
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.SQLDelete;
-import org.hibernate.annotations.Where;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -136,5 +134,13 @@ public class Product extends Auditable {
         this.harvestSeason = edit.getHarvestSeason();
         this.recommendation = edit.getRecommendation();
         this.subscription = edit.getSubscription();
+    }
+
+    public void addLikeCount() {
+        likeCount++;
+    }
+
+    public void reduceLikeCount() {
+        likeCount--;
     }
 }
