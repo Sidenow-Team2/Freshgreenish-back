@@ -5,6 +5,7 @@ import lombok.Getter;
 public enum ExceptionCode {
     LIKES_NOT_FOUND(415, "존재하지 않는 좋아요입니다."),
     PRODUCT_NOT_FOUND(415, "존재하지 않는 상품 정보입니다."),
+    PRODUCT_BASKET_NOT_FOUND(415, "존재하지 않는 상품 장바구니 정보입니다."),
     ANSWER_NOT_FOUND(415, "존재하지 않는 답변 정보입니다."),
     QUESTION_NOT_FOUND(415, "존재하지 않는 질문 정보입니다"),
     USER_NOT_FOUND(415, "존재하지 않는 회원입니다."),
@@ -24,8 +25,8 @@ public enum ExceptionCode {
     PRODUCT_ALREADY_DELETE(504, "이미 삭제된 상품입니다."),
     PRODUCT_ALREADY_EXIST(504, "이미 존재하는 상품입니다."),
     REVIEW_ALREADY_DELETE(504, "이미 삭제된 리뷰입니다."),
-    ANSWER_ALREADY_EXIST(504, "이미 삭제된 답변입니다."),
-    QUESTION_ALREADY_EXIST(504, "이미 삭제된 질문입니다."),
+    ANSWER_ALREADY_DELETE(504, "이미 삭제된 답변입니다."),
+    QUESTION_ALREADY_DELETE(504, "이미 삭제된 질문입니다."),
 
     UPLOAD_FAILED(504, "업로드가 실패했습니다."),
     PAYMENT_URL_REQUEST_FAILED(504, "결제 URL 요청을 실패했습니다."),

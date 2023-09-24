@@ -67,4 +67,12 @@ public class ProductDbService {
         else if (sortId == 3) return productRepository.getProductCategoryOrderByLikeCount(category, pageable);
         else return productRepository.getProductCategoryOrderByProductId(category, pageable);
     }
+
+    public Integer getPrice(Long productId) {
+        return productRepository.getPrice(productId);
+    }
+
+    public Integer getDiscountPrice(Long productId) {
+        return productRepository.getDiscountPrice(productId);
+    }
 }
