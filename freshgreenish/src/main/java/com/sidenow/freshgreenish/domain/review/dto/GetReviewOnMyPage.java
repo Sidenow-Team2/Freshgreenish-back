@@ -7,6 +7,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Getter
 @NoArgsConstructor
@@ -17,11 +19,13 @@ public class GetReviewOnMyPage {
     private String reviewContent;
     private LocalDateTime lastModifiedAt;
     private String title;
+    private String productFirstImage;
+    private List<ReviewImageVO> reviewImage;
     private Integer likeCount;
 
     @Builder
     @QueryProjection
-    public GetReviewOnMyPage(Review review, Long productId, String title) {
+    public GetReviewOnMyPage(Review review, Long productId, String title, String productFirstImage) {
         this.reviewId = review.getReviewId();
         this.productId = productId;
         this.reviewTitle = review.getReviewTitle();
@@ -29,5 +33,12 @@ public class GetReviewOnMyPage {
         this.lastModifiedAt = review.getLastModifiedAt();
         this.title = title;
         this.likeCount = review.getLikeCount();
+        this.reviewImage = review.getReviewImages().stream()
+                .map(reviewImage -> ReviewImageVO.builder()
+                        .reviewImageId(reviewImage.getReviewImageId())
+                        .filePath(reviewImage.getFilePath())
+                        .build())
+                .collect(Collectors.toList());
+        this.productFirstImage = productFirstImage;
     }
 }
