@@ -20,13 +20,13 @@ public class BasketController {
 
     @PostMapping("/product/{productId}")
     public ResponseEntity addProductInBasket(@PathVariable("productId") Long productId,
-                                    @RequestBody @Valid PostBasket post) {
+                                             @RequestBody @Valid PostBasket post) {
         Long userId = 1L;
         basketService.addProductInBasket(productId, userId, post);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-    @PatchMapping("/product/{productId}/option/change")
+    @PatchMapping("/product/{productId}")
     public ResponseEntity changeProductCountInBasket(@PathVariable("productId") Long productId,
                                                      @RequestBody @Valid PostBasket post) {
         Long userId = 1L;
