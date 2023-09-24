@@ -1,6 +1,7 @@
 package com.sidenow.freshgreenish.domain.review.entity;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.sidenow.freshgreenish.domain.review.dto.PostReview;
 import com.sidenow.freshgreenish.global.utils.Auditable;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -21,27 +22,36 @@ import java.util.List;
 public class Review extends Auditable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "REVIEW")
-    private Long id;
+    @Column(name = "REVIEW_ID")
+    private Long reviewId;
 
     @Column(length = 1000)
-    private String content;
+    private String reviewTitle;
+
+    @Column(length = 1000)
+    private String reviewContent;
 
     private Long productId;
     private Long userId;
 
-    private Integer likeCount;
+    private Integer likeCount = 0;
 
     @JsonManagedReference
     @OneToMany(mappedBy = "review", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ReviewImage> reviewImages = new ArrayList<>();
 
     @Builder
-    public Review(Long id, String content, Long productId, Long userId) {
-        this.id = id;
-        this.content = content;
+    public Review(Long reviewId, String reviewTitle, String reviewContent, Long productId, Long userId) {
+        this.reviewId = reviewId;
+        this.reviewTitle = reviewTitle;
+        this.reviewContent = reviewContent;
         this.productId = productId;
         this.userId = userId;
+    }
+
+    public void editReview(PostReview edit) {
+        this.reviewTitle = edit.getReviewTitle();
+        this.reviewContent = edit.getReviewContent();
     }
 
     public void addReviewImage(ReviewImage reviewImage) {
@@ -52,5 +62,13 @@ public class Review extends Auditable {
     public void editReviewImage(List<ReviewImage> reviewImages) {
         this.reviewImages.clear();
         this.reviewImages.addAll(reviewImages);
+    }
+
+    public void addLikeCount() {
+        likeCount++;
+    }
+
+    public void reduceLikeCount() {
+        likeCount--;
     }
 }
