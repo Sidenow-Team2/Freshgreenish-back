@@ -1,14 +1,17 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="ko"  xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml">
 <head>
   <meta charset="UTF-8">
   <title>Login Page</title>
 </head>
+
 <body>
 <h2>Login</h2>
 <form th:action="@{/oauth2/authorization/google}" method="post">
   <input type="submit" value="Google Login">
 </form>
+<a sec:authorize="isAnonymous()"  href="/oauth2/authorization/naver" class="btn btn-secondary active" role="button">Naver Login</a>
+
 <a href="/oauth/loginInfo">OAuth2 로그인 정보</a>
 </body>
 </html>

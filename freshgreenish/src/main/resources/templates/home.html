@@ -1,10 +1,14 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>HOME</title>
 </head>
 <body>
-
+<a href="/login" class="btn btn-info active" role="button">Login</a>
+<a href="/logout" class="btn btn-info active" role="button">Logout</a>
+<div sec:authorize="isAuthenticated()">
+    Logged in as: <span id="user" th:text="${userName}">None</span>
+</div>
 </body>
 </html>
