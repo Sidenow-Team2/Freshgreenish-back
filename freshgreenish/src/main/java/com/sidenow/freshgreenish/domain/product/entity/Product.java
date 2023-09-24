@@ -1,7 +1,7 @@
 package com.sidenow.freshgreenish.domain.product.entity;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
-import com.sidenow.freshgreenish.domain.product.dto.PostProduct;
+import com.sidenow.freshgreenish.domain.product.dto.EditProduct;
 import com.sidenow.freshgreenish.global.utils.Auditable;
 import jakarta.persistence.*;
 import lombok.*;
@@ -54,6 +54,8 @@ public class Product extends Auditable {
 
     @Column(length = 2000)
     private String productFirstImage; //대표이미지주소
+
+    @Setter
     @Column(length = 2000)
     private String productDetailImage; //상세정보이미지주소
 
@@ -114,7 +116,7 @@ public class Product extends Auditable {
         productFirstImage = productImages.get(0).getFilePath();
     }
 
-    public void editProduct(PostProduct edit) {
+    public void editProduct(EditProduct edit) {
         this.title = edit.getTitle();
         this.subTitle = edit.getSubTitle();
         this.price = edit.getPrice();

@@ -13,7 +13,6 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static com.sidenow.freshgreenish.domain.likes.entity.QLikes.likes;
@@ -64,9 +63,9 @@ public class ProductRepositoryImpl implements CustomProductRepository {
                         product.productDetailImage
                 )).from(product)
                 .distinct()
-                .where(product.origin.eq(category)
-                        .or(product.storageMethod.eq(category))
-                        .and(product.deleted.eq(false)))
+                .where(product.deleted.eq(false)
+                        .or(product.origin.eq(category))
+                        .or(product.storageMethod.eq(category)))
                 .orderBy(product.productId.desc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
@@ -88,10 +87,10 @@ public class ProductRepositoryImpl implements CustomProductRepository {
                         product.productDetailImage
                 )).from(product)
                 .distinct()
-                .where(product.origin.eq(category)
-                        .or(product.storageMethod.eq(category))
-                        .and(product.deleted.eq(false)))
-                .orderBy(product.purchaseCount.desc())
+                .where(product.deleted.eq(false)
+                        .or(product.origin.eq(category))
+                        .or(product.storageMethod.eq(category)))
+                .orderBy(product.purchaseCount.desc(), product.productId.desc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
@@ -112,10 +111,10 @@ public class ProductRepositoryImpl implements CustomProductRepository {
                         product.productDetailImage
                 )).from(product)
                 .distinct()
-                .where(product.origin.eq(category)
-                        .or(product.storageMethod.eq(category))
-                        .and(product.deleted.eq(false)))
-                .orderBy(product.likeCount.desc())
+                .where(product.deleted.eq(false)
+                        .or(product.origin.eq(category))
+                        .or(product.storageMethod.eq(category)))
+                .orderBy(product.likeCount.desc(), product.productId.desc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
