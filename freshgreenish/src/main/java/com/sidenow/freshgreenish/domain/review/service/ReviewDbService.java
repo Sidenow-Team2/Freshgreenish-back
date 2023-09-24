@@ -3,13 +3,17 @@ package com.sidenow.freshgreenish.domain.review.service;
 import com.sidenow.freshgreenish.domain.review.dto.GetReviewOnMyPage;
 import com.sidenow.freshgreenish.domain.review.dto.GetReviewOnProductDetail;
 import com.sidenow.freshgreenish.domain.review.entity.Review;
+import com.sidenow.freshgreenish.domain.review.entity.ReviewImage;
 import com.sidenow.freshgreenish.domain.review.repository.ReviewRepository;
 import com.sidenow.freshgreenish.global.exception.BusinessLogicException;
 import com.sidenow.freshgreenish.global.exception.ExceptionCode;
+import com.sidenow.freshgreenish.global.file.UploadFile;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.data.domain.Pageable;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -18,6 +22,18 @@ public class ReviewDbService {
 
     public void saveReview(Review review) {
         reviewRepository.save(review);
+    }
+
+    public void saveReviewImage(List<UploadFile> reviewImages, Review review) {
+        reviewImages.forEach(reviewImage -> {
+            ReviewImage createReviewImage = ReviewImage.builder()
+                    .originFileName(reviewImage.getOriginFileName())
+                    .fileName(reviewImage.getFileName())
+                    .filePath(reviewImage.getFilePath())
+                    .fileSize(reviewImage.getFileSize())
+                    .build();
+            review.addReviewImage(createReviewImage);
+        });
     }
 
     public Review ifExistsReturnReview(Long reviewId) {

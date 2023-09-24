@@ -1,7 +1,7 @@
 package com.sidenow.freshgreenish.domain.review.entity;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
-import com.sidenow.freshgreenish.domain.review.dto.PostReview;
+import com.sidenow.freshgreenish.domain.review.dto.EditReview;
 import com.sidenow.freshgreenish.global.utils.Auditable;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -49,7 +49,7 @@ public class Review extends Auditable {
         this.userId = userId;
     }
 
-    public void editReview(PostReview edit) {
+    public void editReview(EditReview edit) {
         this.reviewTitle = edit.getReviewTitle();
         this.reviewContent = edit.getReviewContent();
     }
