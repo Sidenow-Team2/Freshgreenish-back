@@ -1,6 +1,11 @@
 package com.sidenow.freshgreenish.domain.likes.controller;
 
+import com.sidenow.freshgreenish.domain.dto.MultiResponseDto;
+import com.sidenow.freshgreenish.domain.likes.dto.GetLikesList;
+import com.sidenow.freshgreenish.domain.likes.dto.WrapLikes;
+import com.sidenow.freshgreenish.domain.likes.service.LikesService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,18 +17,26 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @RequestMapping("/likes")
 public class LikesController {
-    @GetMapping("/product/{product-id}/check")
-    public ResponseEntity checkLikes(@PathVariable("product-id") Long productId) {
-        return ResponseEntity.ok().build();
+    private final LikesService likesService;
+
+    @GetMapping("/product/{productId}/check")
+    public ResponseEntity checkLikes(@PathVariable("productId") Long productId) {
+        Long userId = 1L;
+        boolean isLikes = likesService.isUserLikes(userId, productId);
+        return ResponseEntity.ok().body(new WrapLikes(isLikes));
     }
 
-    @GetMapping("/product/{product-id}")
-    public ResponseEntity addOrDeleteLikes(@PathVariable("product-id") Long productId) {
-        return ResponseEntity.ok().build();
+    @GetMapping("/product/{productId}")
+    public ResponseEntity addOrDeleteLikes(@PathVariable("productId") Long productId) {
+        Long userId = 1L;
+        boolean isLikes = likesService.changeLikesStatus(userId, productId);
+        return ResponseEntity.ok().body(new WrapLikes(isLikes));
     }
 
     @GetMapping
     public ResponseEntity getLikes(Pageable pageable) {
-        return ResponseEntity.ok().build();
+        Long userId = 1L;
+        Page<GetLikesList> LikesList = likesService.findLikesList(userId, pageable);
+        return ResponseEntity.ok().body(new MultiResponseDto<>(LikesList));
     }
 }
