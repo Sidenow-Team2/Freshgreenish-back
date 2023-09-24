@@ -1,43 +1,89 @@
 package com.sidenow.freshgreenish.domain.product.service;
 
+import com.sidenow.freshgreenish.domain.product.dto.EditProduct;
 import com.sidenow.freshgreenish.domain.product.dto.PostProduct;
 import com.sidenow.freshgreenish.domain.product.entity.Product;
+import com.sidenow.freshgreenish.domain.product.entity.ProductImage;
 import com.sidenow.freshgreenish.global.exception.BusinessLogicException;
 import com.sidenow.freshgreenish.global.exception.ExceptionCode;
+import com.sidenow.freshgreenish.global.file.FileHandler;
+import com.sidenow.freshgreenish.global.file.UploadFile;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class ProductService {
     private final ProductDbService productDbService;
+    private final FileHandler fileHandler;
 
-    // TODO : 이미지 등록 추가 예정
+    @SneakyThrows
     @Transactional
-    public void postProduct(PostProduct post) {
+    public void postProduct(PostProduct post, List<MultipartFile> productImage, MultipartFile productDetailImage){
         Product findProduct = returnProductFromPost(post);
         Integer discountPrice =
                 calculateDiscountPrice(post.getPrice(), findProduct.getPrice(), post.getDiscountRate(), findProduct.getDiscountRate());
         findProduct.setDiscountPrice(discountPrice);
         findProduct.setProductNumber(createProductNumber(findProduct.getCreatedAt()));
 
-        productDbService.saveProduct(findProduct);
+        List<UploadFile> productImages = fileHandler.uploadFileList(productImage);
+        UploadFile uploadFile = fileHandler.uploadFile(productDetailImage);
+        findProduct.setProductDetailImage(uploadFile.getFilePath());
+
+        productDbService.saveProductImage(productImages, findProduct);
+
+        Product newProduct = productDbService.saveAndReturnProduct(findProduct);
+        newProduct.setProductFirstImage(findProduct.getProductImages());
+
+        productDbService.saveProduct(newProduct);
     }
 
+    @SneakyThrows
     @Transactional
-    public void editProduct(Long productId, PostProduct edit) {
+    public void editProduct(Long productId, EditProduct edit, List<MultipartFile> productImage, MultipartFile productDetailImage) {
         Product findProduct = productDbService.ifExistsReturnProduct(productId);
         findProduct.editProduct(edit);
         Integer discountPrice =
                 calculateDiscountPrice(edit.getPrice(), findProduct.getPrice(), edit.getDiscountRate(), findProduct.getDiscountRate());
         findProduct.setDiscountPrice(discountPrice);
 
-        productDbService.saveProduct(findProduct);
+        List<Long> deleteImageId = edit.getDeleteImageId();
+        List<ProductImage> originalProductImage = new ArrayList<>(findProduct.getProductImages());
+        if (originalProductImage.size() != 0) {
+            for (Long imageId : deleteImageId) {
+                for (int j = 0; j < originalProductImage.size(); j++) {
+                    if (Objects.equals(originalProductImage.get(j).getProductImageId(), imageId)) {
+                        originalProductImage.remove(j);
+                        break;
+                    }
+                }
+            }
+        }
+
+        List<UploadFile> productImages = fileHandler.uploadFileList(productImage);
+        findProduct.editProductImage(originalProductImage);
+
+        productDbService.saveProductImage(productImages, findProduct);
+
+        if (!productDetailImage.isEmpty()) {
+            UploadFile uploadFile = fileHandler.uploadFile(productDetailImage);
+            findProduct.setProductDetailImage(uploadFile.getFilePath());
+        }
+
+        Product newProduct = productDbService.saveAndReturnProduct(findProduct);
+        newProduct.setProductFirstImage(findProduct.getProductImages());
+
+        productDbService.saveProduct(newProduct);
     }
 
     @Transactional
@@ -45,7 +91,7 @@ public class ProductService {
         Product findProduct = productDbService.ifExistsReturnProduct(productId);
 
         if (findProduct.getDeleted().equals(true)) {
-            throw new BusinessLogicException(ExceptionCode.PRODUCT_ALREADY_EXIST);
+            throw new BusinessLogicException(ExceptionCode.PRODUCT_ALREADY_DELETE);
         }
 
         findProduct.setDeleted(true);
@@ -58,7 +104,7 @@ public class ProductService {
         Product findProduct = productDbService.ifExistsReturnProduct(productId);
 
         if (findProduct.getDeleted().equals(true)) {
-            throw new BusinessLogicException(ExceptionCode.PRODUCT_ALREADY_RESTORE);
+            throw new BusinessLogicException(ExceptionCode.PRODUCT_ALREADY_EXIST);
         }
 
         findProduct.setDeleted(false);

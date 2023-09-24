@@ -3,13 +3,17 @@ package com.sidenow.freshgreenish.domain.product.service;
 import com.sidenow.freshgreenish.domain.product.dto.GetProductCategory;
 import com.sidenow.freshgreenish.domain.product.dto.GetProductDetail;
 import com.sidenow.freshgreenish.domain.product.entity.Product;
+import com.sidenow.freshgreenish.domain.product.entity.ProductImage;
 import com.sidenow.freshgreenish.domain.product.repository.ProductRepository;
 import com.sidenow.freshgreenish.global.exception.BusinessLogicException;
 import com.sidenow.freshgreenish.global.exception.ExceptionCode;
+import com.sidenow.freshgreenish.global.file.UploadFile;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -18,6 +22,22 @@ public class ProductDbService {
 
     public void saveProduct(Product product) {
         productRepository.save(product);
+    }
+
+    public Product saveAndReturnProduct(Product product) {
+        return productRepository.save(product);
+    }
+
+    public void saveProductImage(List<UploadFile> productImages, Product product) {
+        productImages.forEach(productImage -> {
+            ProductImage createProductImage = ProductImage.builder()
+                    .originFileName(productImage.getOriginFileName())
+                    .fileName(productImage.getFileName())
+                    .filePath(productImage.getFilePath())
+                    .fileSize(productImage.getFileSize())
+                    .build();
+            product.addProductImage(createProductImage);
+        });
     }
 
     public Product findById(Long productId) {
