@@ -9,6 +9,7 @@ build/
 */.idea
 
 src/main/resources/application-oauth.yml
+src/main/resources/application-mail.yml
 
 ### STS ###
 .apt_generated

@@ -18,7 +18,9 @@ spring:
         format_sql: true
     defer-datasource-initialization: true
   profiles:
-    include: oauth
+    include:
+      - oauth
+      - mail
   thymeleaf:
     prefix: classpath:/templates/
     check-template-location: false
@@ -31,3 +33,4 @@ payment:
     test_secrete_api_key: test_sk_Z1aOwX7K8me4B46yGNA8yQxzvNPG
     success_url: "http://localhost:8080/payment/toss/success"
     fail_url: "http://localhost:8080/payment/toss/fail"
+
