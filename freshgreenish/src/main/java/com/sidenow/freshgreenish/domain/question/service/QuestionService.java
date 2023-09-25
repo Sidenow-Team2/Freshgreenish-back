@@ -60,7 +60,7 @@ public class QuestionService {
         }
 
         if (findQuestion.getDeleted().equals(true)) {
-            throw new BusinessLogicException(ExceptionCode.QUESTION_ALREADY_EXIST);
+            throw new BusinessLogicException(ExceptionCode.QUESTION_ALREADY_DELETE);
         }
 
         findQuestion.setDeleted(true);

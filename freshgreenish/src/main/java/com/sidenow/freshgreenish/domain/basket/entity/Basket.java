@@ -1,34 +1,53 @@
 package com.sidenow.freshgreenish.domain.basket.entity;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.sidenow.freshgreenish.domain.user.entity.User;
-import com.sidenow.freshgreenish.global.utils.Auditable;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import org.hibernate.annotations.SQLDelete;
-import org.hibernate.annotations.Where;
+import lombok.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@SQLDelete(sql = "UPDATE basket SET deleted = true WHERE id = ?")
-@Where(clause = "deleted = false")
-public class Basket extends Auditable {
+public class Basket{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "ID")
-    private Long id;
+    @Column(name = "BASKET_ID")
+    private Long basketId;
 
-    @JsonBackReference
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "USER_ID")
-    private User user;
+    private Long userId;
+
+    private Integer totalBasketPrice;
+    private Integer discountedBasketTotalPrice;
+    private Integer discountedBasketPrice;
+
+    @JsonManagedReference
+    @OneToMany(mappedBy = "basket", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
+    private List<ProductBasket> productBasket = new ArrayList<>();
 
     @Builder
-    public Basket(User user) {
-        this.user = user;
+    public Basket(Long basketId, Long userId, Integer totalBasketPrice, Integer discountedBasketTotalPrice, Integer discountedBasketPrice) {
+        this.basketId = basketId;
+        this.userId = userId;
+        this.totalBasketPrice = totalBasketPrice;
+        this.discountedBasketTotalPrice = discountedBasketTotalPrice;
+        this.discountedBasketPrice = discountedBasketPrice;
+    }
+
+    public void setBasketPrice(Integer totalBasketPrice, Integer discountedBasketTotalPrice, Integer discountedBasketPrice) {
+        this.totalBasketPrice = totalBasketPrice;
+        this.discountedBasketPrice = discountedBasketPrice;
+        this.discountedBasketTotalPrice = discountedBasketTotalPrice;
+    }
+
+    public void addProductBasket(ProductBasket productBaskets) {
+        if(productBaskets.getBasket() != this) productBaskets.addBasket(this);
+        productBasket.add(productBaskets);
+    }
+
+    public void editProductImage(List<ProductBasket> productBaskets) {
+        this.productBasket.clear();
+        this.productBasket.addAll(productBaskets);
     }
 }

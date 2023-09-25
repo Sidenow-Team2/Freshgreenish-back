@@ -5,8 +5,6 @@ import com.sidenow.freshgreenish.domain.product.dto.GetProductDetail;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-import java.util.List;
-
 public interface CustomProductRepository {
     GetProductDetail getProductDetail(Long productId);
     GetProductDetail getProductDetailUponLogin(Long productId, Long userId);
@@ -16,5 +14,8 @@ public interface CustomProductRepository {
     Page<GetProductCategory> getProductCategoryOrderByLikeCount(String category, Pageable pageable);
 
     Boolean isDeleted(Long productId);
+
+    Integer getPrice(Long productId);
+    Integer getDiscountPrice(Long productId);
 
 }
