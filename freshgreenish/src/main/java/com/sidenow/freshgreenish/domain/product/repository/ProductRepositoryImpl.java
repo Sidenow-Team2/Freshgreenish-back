@@ -132,6 +132,24 @@ public class ProductRepositoryImpl implements CustomProductRepository {
                 .fetchOne();
     }
 
+    @Override
+    public Integer getPrice(Long productId) {
+        return queryFactory
+                .select(product.price)
+                .from(product)
+                .where(product.productId.eq(productId))
+                .fetchOne();
+    }
+
+    @Override
+    public Integer getDiscountPrice(Long productId) {
+        return queryFactory
+                .select(product.discountPrice)
+                .from(product)
+                .where(product.productId.eq(productId))
+                .fetchOne();
+    }
+
     private JPQLQuery<Boolean> isLikes(NumberPath<Long> productId, Long userId) {
         return JPAExpressions.select(
                         new CaseBuilder()
