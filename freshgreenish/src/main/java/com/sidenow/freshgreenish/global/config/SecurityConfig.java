@@ -23,8 +23,10 @@ public class SecurityConfig {
         MvcRequestMatcher.Builder mvc = new MvcRequestMatcher.Builder(introspector);
         http
                 .csrf((csrf) -> csrf.disable())
+                .headers((headers) -> headers
+                        .frameOptions((fo) -> fo.disable()))
                 .authorizeHttpRequests((authorize) -> authorize
-                        .requestMatchers(mvc.pattern("/"), mvc.pattern("/oauth2/**"), mvc.pattern("/login")).permitAll()
+                        .requestMatchers(mvc.pattern("/"), mvc.pattern("/oauth2/**"), mvc.pattern("/login"), mvc.pattern("/h2-console/**")).permitAll()
                         .requestMatchers(mvc.pattern("/api/v1/**")).hasRole(Role.USER.name()) // 유저만 접근 가능
                         .anyRequest().authenticated())
                 .logout(logout-> logout
@@ -35,11 +37,9 @@ public class SecurityConfig {
                         .loginPage("/login")
                         .defaultSuccessUrl("/")
                 );
-//                        .defaultSuccessUrl("/")
-//                        .failureUrl("/login")
-//                        .userInfoEndpoint() // 사용자 정보 가져옴
-//                            .userService(customOAuth2UserService); // 가져온 사용자 정보 처리
 
         return http.build();
     }
+
+
 }
