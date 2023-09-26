@@ -1,6 +1,9 @@
 package com.sidenow.freshgreenish.domain.user.service;
 
+import com.sidenow.freshgreenish.domain.address.dto.PostAddressDTO;
+import com.sidenow.freshgreenish.domain.address.entity.Address;
 import com.sidenow.freshgreenish.domain.address.repository.AddressRepository;
+import com.sidenow.freshgreenish.domain.address.service.AddressService;
 import com.sidenow.freshgreenish.domain.user.entity.User;
 import com.sidenow.freshgreenish.domain.user.repository.MyInfoRepository;
 import com.sidenow.freshgreenish.domain.user.repository.UserRepository;
@@ -18,18 +21,31 @@ import org.springframework.stereotype.Service;
 public class MyInfoService {
 
     private final UserRepository userRepository;
+    private final AddressRepository addressRepository;
 
     public void changeNickname(@AuthenticationPrincipal OAuth2User oauth, String nickname) {
         if (userRepository.existsByNickname(nickname)) {
             throw new BusinessLogicException(ExceptionCode.DUPLICATE_NICKNAME);
         } else{
-            String userEmail = oauth.getAttribute("email");
-            User user = userRepository.findByEmail(userEmail)
-                    .orElseThrow(
-                            NullPointerException::new
-                    );
+            User user = findUser(oauth);
             user.setNickname(nickname);
             userRepository.save(user);
         }
+    }
+
+    public void changeAddress(OAuth2User oauth, PostAddressDTO dto) {
+        User user = findUser(oauth);
+        Address address = addressRepository.findByUserAndIsDefaultAddress(user, true);
+        address.updateAddress(dto.getPostalCode(), dto.getAddressMain(), dto.getAddressDetail(),
+                dto.getAddressNickname(), true, dto.getRecipientName(), dto.getPhoneNumber());
+        addressRepository.save(address);
+    }
+
+    public User findUser(OAuth2User oauth){
+        String userEmail = oauth.getAttribute("email");
+        return userRepository.findByEmail(userEmail)
+                .orElseThrow(
+                        NullPointerException::new
+                );
     }
 }
