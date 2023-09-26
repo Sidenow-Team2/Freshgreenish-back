@@ -25,6 +25,7 @@ public class OAuthAttributes {  //OAuth2UserService를 통해 가져온 OAuth2Us
     }
 
     public static OAuthAttributes of(String registrationId, String userNameAttributeName, Map<String, Object> attributes) {
+
         if("naver".equals(registrationId)) {
             return ofNaver("id", attributes);
         }

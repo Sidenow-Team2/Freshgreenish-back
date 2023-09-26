@@ -3,10 +3,7 @@ package com.sidenow.freshgreenish.domain.user.entity;
 
 import com.sidenow.freshgreenish.global.utils.Auditable;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 
@@ -29,6 +26,7 @@ public class User extends Auditable {
     private String password;
 
     @Column(length = 20)
+    @Setter
     private String nickname;
 
     private Integer saved_money;

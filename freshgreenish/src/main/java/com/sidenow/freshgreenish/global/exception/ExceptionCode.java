@@ -20,6 +20,8 @@ public enum ExceptionCode {
     INVALID_OAUTH2(403, "지원하지 않는 OAuth2 프로바이더입니다."),
     INVALID_AUTH_TOKEN(403, "유효하지 않은 토큰입니다."),
     DEFAULT_ADDRESS_CAN_BE_ONLY_ONE(403, "기본 배송지는 한 개만 입력 가능합니다."),
+    EMAIL_VERIFICATION_FIRST(403, "이메일 인증을 먼저 진행해주세요."),
+    DUPLICATE_NICKNAME(403, "중복 닉네임입니다."),
 
     NICKNAME_ALREADY_EXIST(504, "이미 존재하는 닉네임입니다."),
     RESOURCE_ALREADY_EXIST(504, "이미 존재하는 데이터입니다."),
