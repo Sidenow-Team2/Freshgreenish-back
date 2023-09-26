@@ -63,4 +63,14 @@ public class BasketRepositoryImpl implements CustomBasketRepository {
                 .where(productBasket.basket.basketId.eq(basketId))
                 .fetchOne();
     }
+
+    @Override
+    public Integer getProductPriceInBasket(Long productId, Long basketId) {
+        return queryFactory
+                .select(productBasket.discountedTotalPrice)
+                .from(productBasket)
+                .where(productBasket.basket.basketId.eq(basketId)
+                        .and(productBasket.product.productId.eq(productId)))
+                .fetchOne();
+    }
 }

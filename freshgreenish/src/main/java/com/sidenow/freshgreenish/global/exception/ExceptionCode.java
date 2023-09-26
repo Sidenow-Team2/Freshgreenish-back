@@ -11,6 +11,9 @@ public enum ExceptionCode {
     USER_NOT_FOUND(415, "존재하지 않는 회원입니다."),
     REVIEW_NOT_FOUND(415, "존재하지 않는 후기입니다."),
     ADDRESS_NOT_FOUND(415, "존재하지 않는 주소입니다."),
+    PURCHASE_NOT_FOUND(415, "존재하지 않는 구매 정보입니다."),
+    PAYMENT_NOT_FOUND(415, "존재하지 않는 결제 정보입니다."),
+    BASKET_NOT_FOUND(415, "존재하지 않는 장바구니입니다."),
 
     UNAUTHORIZED_FOR_UPDATE(403, "수정 권한이 없습니다."),
     UNAUTHORIZED_FOR_DELETE(403, "삭제 권한이 없습니다."),
@@ -27,14 +30,11 @@ public enum ExceptionCode {
     PRODUCT_ALREADY_DELETE(504, "이미 삭제된 상품입니다."),
     PRODUCT_ALREADY_EXIST(504, "이미 존재하는 상품입니다."),
     REVIEW_ALREADY_DELETE(504, "이미 삭제된 리뷰입니다."),
-
-    ANSWER_ALREADY_EXIST(504, "이미 삭제된 답변입니다."),
-    QUESTION_ALREADY_EXIST(504, "이미 삭제된 질문입니다."),
-    ADDRESS_ALREADY_DELETE(504, "이미 삭제된 주소입니다."),
-
     ANSWER_ALREADY_DELETE(504, "이미 삭제된 답변입니다."),
     QUESTION_ALREADY_DELETE(504, "이미 삭제된 질문입니다."),
+    ADDRESS_ALREADY_DELETE(504, "이미 삭제된 주소입니다."),
 
+    POINTS_CANNOT_EXCEEDED(403, "가지고 있는 적립금을 초과하여 사용할 수 없습니다."),
 
     UPLOAD_FAILED(504, "업로드가 실패했습니다."),
     PAYMENT_URL_REQUEST_FAILED(504, "결제 URL 요청을 실패했습니다."),

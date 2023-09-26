@@ -44,6 +44,11 @@ public class BasketDbService {
                 .orElseThrow(() -> new BusinessLogicException(ExceptionCode.PRODUCT_BASKET_NOT_FOUND));
     }
 
+    public Basket ifExistsReturnBasketById(Long basketId) {
+        return basketRepository.findById(basketId)
+                .orElseThrow(() -> new BusinessLogicException(ExceptionCode.PRODUCT_BASKET_NOT_FOUND));
+    }
+
     public ProductBasket ifExistsReturnProductBasket(Long productId, Long basketId) {
         return productBasketRepository.findByProductProductIdAndBasketBasketId(productId, basketId)
                 .orElseThrow(() -> new BusinessLogicException(ExceptionCode.PRODUCT_BASKET_NOT_FOUND));
@@ -63,6 +68,10 @@ public class BasketDbService {
 
     public Integer getDiscountedTotalBasketPrice(Long basketId) {
         return basketRepository.getDiscountedTotalBasketPrice(basketId);
+    }
+
+    public Integer getProductPriceInBasket(Long productId, Long basketId) {
+        return basketRepository.getProductPriceInBasket(productId, basketId);
     }
 
     public void deleteAllByProductBasketId(List<Long> productBasketId) {
