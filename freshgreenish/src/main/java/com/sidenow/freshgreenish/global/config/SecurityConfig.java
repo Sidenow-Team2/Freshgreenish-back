@@ -26,11 +26,7 @@ public class SecurityConfig {
                 .headers((headers) -> headers
                         .frameOptions((fo) -> fo.disable()))
                 .authorizeHttpRequests((authorize) -> authorize
-<<<<<<< HEAD
                         .requestMatchers(mvc.pattern("/"), mvc.pattern("/oauth2/**"), mvc.pattern("/login"), mvc.pattern("/h2-console/**"), mvc.pattern("/mail/**")).permitAll()
-=======
-                        .requestMatchers(mvc.pattern("/"), mvc.pattern("/oauth2/**"), mvc.pattern("/login"), mvc.pattern("/h2-console/**")).permitAll()
->>>>>>> 1c87bc00f7843704fadf2a39338cd8cb8f70be74
                         .requestMatchers(mvc.pattern("/api/v1/**")).hasRole(Role.USER.name()) // 유저만 접근 가능
                         .anyRequest().authenticated())
                 .logout(logout-> logout
