@@ -1,5 +1,6 @@
 package com.sidenow.freshgreenish.domain.user.controller;
 
+import com.sidenow.freshgreenish.domain.user.entity.User;
 import com.sidenow.freshgreenish.domain.user.repository.UserRepository;
 import com.sidenow.freshgreenish.global.config.auth.dto.SessionUser;
 
@@ -28,6 +29,22 @@ public class UserController {
         SessionUser user = (SessionUser) httpSession.getAttribute("user");
         if (user != null) {
             model.addAttribute("userName", user.getNickname());
+            model.addAttribute("imgUrl", user.getPicture());
+        }
+        return "home";
+    }
+
+    /* 이미지 화면 조회 테스트용: 수정 예정 */
+    @GetMapping("/showimage")
+    public String index(@AuthenticationPrincipal OAuth2User oauth, Model model){
+        String userEmail = oauth.getAttribute("email");
+        User user = userRepository.findByEmail(userEmail)
+                .orElseThrow(
+                        NullPointerException::new
+                );
+        if (user != null) {
+            model.addAttribute("userName", user.getNickname());
+            model.addAttribute("imgUrl", user.getFilePath());
         }
         return "home";
     }

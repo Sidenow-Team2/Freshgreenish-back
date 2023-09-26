@@ -10,6 +10,9 @@ import java.util.Optional;
 public interface AddressRepository extends JpaRepository<Address, Long> {
     Optional<Address> findByAddressId(Long AddressId);
     List<Address> findAllByUserAndIsDefaultAddress(User user, boolean isDefaultAddress);
+
+    Address findByUserAndIsDefaultAddress(User user, boolean isDefaultAddress);
+
     Address findByUserAndIsDefaultAddressAndIsInMyPageAndDeleted(User user, boolean isDefaultAddress, boolean isInMyPage, boolean deleted);
     List<Address> findAllByUserAndIsDefaultAddressAndIsInMyPageAndDeleted(User user, boolean isDefaultAddress, boolean isInMyPage, boolean deleted);
 }

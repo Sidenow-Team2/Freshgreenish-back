@@ -23,9 +23,7 @@ public class User extends Auditable {
     private String email;
 
     @Column(length = 20)
-    private String password;
-
-    @Column(length = 20)
+    @Setter
     private String nickname;
 
     @Setter
@@ -37,6 +35,7 @@ public class User extends Auditable {
     private String socialType;
 
     @Column(length = 2000)
+    @Setter
     private String filePath;
 
     @Enumerated(EnumType.STRING)
@@ -46,7 +45,6 @@ public class User extends Auditable {
     @Builder
     public User(String email, String password, String nickname, int saved_money, Boolean isJoinRegular, String socialType, String filePath, Role role) {
         this.email = email;
-        this.password = password;
         this.nickname = nickname;
         this.saved_money = saved_money;
         this.isJoinRegular = isJoinRegular;
