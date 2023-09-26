@@ -5,12 +5,15 @@ import com.sidenow.freshgreenish.domain.product.dto.GetProductDetail;
 import com.sidenow.freshgreenish.domain.product.entity.Product;
 import com.sidenow.freshgreenish.domain.product.entity.ProductImage;
 import com.sidenow.freshgreenish.domain.product.repository.ProductRepository;
+import com.sidenow.freshgreenish.domain.user.entity.User;
+import com.sidenow.freshgreenish.domain.user.service.UserDbService;
 import com.sidenow.freshgreenish.global.exception.BusinessLogicException;
 import com.sidenow.freshgreenish.global.exception.ExceptionCode;
 import com.sidenow.freshgreenish.global.file.UploadFile;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -19,6 +22,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ProductDbService {
     private final ProductRepository productRepository;
+    private final UserDbService userDbService;
 
     public void saveProduct(Product product) {
         productRepository.save(product);
@@ -57,6 +61,10 @@ public class ProductDbService {
         }
     }
 
+    public Page<GetProductCategory> getMainPage(Pageable pageable) {
+        return productRepository.getMainPage(pageable);
+    }
+
     public GetProductDetail getProductDetail(Long productId, Long userId) {
         if (userId != null) return productRepository.getProductDetailUponLogin(productId, userId);
         return productRepository.getProductDetail(productId);
@@ -74,5 +82,9 @@ public class ProductDbService {
 
     public Integer getDiscountPrice(Long productId) {
         return productRepository.getDiscountPrice(productId);
+    }
+
+    public User findUser(OAuth2User oauth) {
+        return userDbService.findUserByEmail(oauth);
     }
 }

@@ -4,6 +4,7 @@ import com.sidenow.freshgreenish.domain.product.dto.EditProduct;
 import com.sidenow.freshgreenish.domain.product.dto.PostProduct;
 import com.sidenow.freshgreenish.domain.product.entity.Product;
 import com.sidenow.freshgreenish.domain.product.entity.ProductImage;
+import com.sidenow.freshgreenish.domain.user.entity.User;
 import com.sidenow.freshgreenish.global.exception.BusinessLogicException;
 import com.sidenow.freshgreenish.global.exception.ExceptionCode;
 import com.sidenow.freshgreenish.global.file.FileHandler;
@@ -12,6 +13,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -29,7 +31,9 @@ public class ProductService {
 
     @SneakyThrows
     @Transactional
-    public void postProduct(PostProduct post, List<MultipartFile> productImage, MultipartFile productDetailImage){
+    public void postProduct(PostProduct post, List<MultipartFile> productImage, MultipartFile productDetailImage, OAuth2User oauth){
+        User findUser = productDbService.findUser(oauth);
+
         Product findProduct = returnProductFromPost(post);
         Integer discountPrice =
                 calculateDiscountPrice(post.getPrice(), findProduct.getPrice(), post.getDiscountRate(), findProduct.getDiscountRate());
@@ -50,7 +54,9 @@ public class ProductService {
 
     @SneakyThrows
     @Transactional
-    public void editProduct(Long productId, EditProduct edit, List<MultipartFile> productImage, MultipartFile productDetailImage) {
+    public void editProduct(Long productId, EditProduct edit, List<MultipartFile> productImage, MultipartFile productDetailImage, OAuth2User oauth) {
+        User findUser = productDbService.findUser(oauth);
+
         Product findProduct = productDbService.ifExistsReturnProduct(productId);
         findProduct.editProduct(edit);
         Integer discountPrice =
@@ -87,7 +93,9 @@ public class ProductService {
     }
 
     @Transactional
-    public void deleteProduct(Long productId) {
+    public void deleteProduct(Long productId, OAuth2User oauth) {
+        User findUser = productDbService.findUser(oauth);
+
         Product findProduct = productDbService.ifExistsReturnProduct(productId);
 
         if (findProduct.getDeleted().equals(true)) {
@@ -99,8 +107,9 @@ public class ProductService {
         productDbService.saveProduct(findProduct);
     }
 
-    public void restoreProduct(Long productId) {
-        // TODO : Product 조회 안됨(수정 필요)
+    public void restoreProduct(Long productId, OAuth2User oauth) {
+        User findUser = productDbService.findUser(oauth);
+
         Product findProduct = productDbService.ifExistsReturnProduct(productId);
 
         if (findProduct.getDeleted().equals(true)) {
