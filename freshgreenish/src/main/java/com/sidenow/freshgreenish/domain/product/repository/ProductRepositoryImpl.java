@@ -52,6 +52,29 @@ public class ProductRepositoryImpl implements CustomProductRepository {
     }
 
     @Override
+    public Page<GetProductCategory> getMainPage(Pageable pageable) {
+        List<GetProductCategory> results = queryFactory
+                .select(new QGetProductCategory(
+                        product.productId,
+                        product.title,
+                        product.price,
+                        product.discountRate,
+                        product.discountPrice,
+                        product.productDetailImage
+                )).from(product)
+                .distinct()
+                .where(product.deleted.eq(false)
+                        .or(product.recommendation.eq(true)))
+                .orderBy(product.productId.desc())
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+
+        long total = results.size();
+        return new PageImpl<>(results, pageable, total);
+    }
+
+    @Override
     public Page<GetProductCategory> getProductCategoryOrderByProductId(String category, Pageable pageable) {
         List<GetProductCategory> results = queryFactory
                 .select(new QGetProductCategory(

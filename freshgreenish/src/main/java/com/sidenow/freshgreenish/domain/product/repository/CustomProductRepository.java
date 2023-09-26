@@ -9,6 +9,7 @@ public interface CustomProductRepository {
     GetProductDetail getProductDetail(Long productId);
     GetProductDetail getProductDetailUponLogin(Long productId, Long userId);
 
+    Page<GetProductCategory> getMainPage(Pageable pageable);
     Page<GetProductCategory> getProductCategoryOrderByProductId(String category, Pageable pageable);
     Page<GetProductCategory> getProductCategoryOrderByPurchaseCount(String category, Pageable pageable);
     Page<GetProductCategory> getProductCategoryOrderByLikeCount(String category, Pageable pageable);
