@@ -9,4 +9,6 @@ public interface CustomBasketRepository {
 
     Integer getTotalBasketPrice(Long basketId);
     Integer getDiscountedTotalBasketPrice(Long basketId);
+
+    Integer getProductPriceInBasket(Long productId, Long basketId);
 }

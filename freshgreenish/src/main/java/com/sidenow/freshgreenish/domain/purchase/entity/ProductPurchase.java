@@ -22,8 +22,6 @@ public class ProductPurchase extends Auditable {
     @Column(name = "PRODUCT_PURCHASE_ID")
     private Long productPurchaseId;
 
-    private Integer count;
-
     @JsonBackReference
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "PRODUCT_ID")
@@ -35,9 +33,16 @@ public class ProductPurchase extends Auditable {
     private Purchase purchase;
 
     @Builder
-    public ProductPurchase(Product product, Integer count, Purchase purchase) {
+    public ProductPurchase(Product product, Purchase purchase) {
         this.product = product;
-        this.count = count;
+        this.purchase = purchase;
+    }
+
+    public void addProduct(Product product) {
+        this.product = product;
+    }
+
+    public void addPurchase(Purchase purchase) {
         this.purchase = purchase;
     }
 }

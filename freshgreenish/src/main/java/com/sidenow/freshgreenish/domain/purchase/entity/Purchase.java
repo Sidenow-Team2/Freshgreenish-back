@@ -1,18 +1,15 @@
 package com.sidenow.freshgreenish.domain.purchase.entity;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.sidenow.freshgreenish.domain.payment.entity.PaymentInfo;
-import com.sidenow.freshgreenish.domain.user.entity.User;
 import com.sidenow.freshgreenish.global.utils.Auditable;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 
-import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -24,21 +21,71 @@ public class Purchase extends Auditable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "PURCHASE_ID")
     private Long purchaseId;
+    private Long userId;
+    private Long addressId;
 
-    private Boolean regularDeliveryStatus;
+    @Setter
+    private String purchaseNumber;
 
-    @JsonBackReference
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "USER_ID")
-    private User user;
+    // 다건 결제
+    private Long basketId;
+
+    // 단건 결제
+    private Long productId;
+    private Integer count;
+
+    @Setter
+    private Integer totalPrice;
+
+    @Setter
+    private Integer totalPriceBeforeUsePoint;
+
+    @Setter
+    private Integer usedPoints;
+
+    @Setter
+    private String paymentMethod;
+
+    @Enumerated(value = EnumType.STRING)
+    private PurchaseStatus purchaseStatus;
+
+    private Boolean isRegularDelivery;
 
     @OneToOne(mappedBy = "purchase", cascade = CascadeType.ALL, orphanRemoval = true)
     private PaymentInfo paymentInfo;
 
+    @JsonManagedReference
+    @OneToMany(mappedBy = "purchase", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
+    private List<ProductPurchase> productPurchase = new ArrayList<>();
 
     @Builder
-    public Purchase(Boolean regularDeliveryStatus, User user) {
-        this.regularDeliveryStatus = regularDeliveryStatus;
-        this.user = user;
+    public Purchase(Long purchaseId, Long basketId, Long userId, Long addressId, Long productId, Integer count,
+                    Integer totalPrice, Boolean isRegularDelivery, Integer totalPriceBeforeUsePoint, Integer usedPoints) {
+        this.purchaseId = purchaseId;
+        this.basketId = basketId;
+        this.userId = userId;
+        this.addressId = addressId;
+        this.productId = productId;
+        this.count = count;
+        this.totalPrice = totalPrice;
+        this.isRegularDelivery = isRegularDelivery;
+        this.totalPriceBeforeUsePoint = totalPriceBeforeUsePoint;
+        this.usedPoints = usedPoints;
+    }
+
+    public void setStatus(PurchaseStatus status) {
+        this.purchaseStatus = status;
+    }
+
+    public void addPaymentInfo(PaymentInfo paymentInfo) {
+        if (paymentInfo.getPurchase() != this) {
+            paymentInfo.setPurchase(this);
+        }
+        this.paymentInfo = paymentInfo;
+    }
+
+    public void addProductPurchase(ProductPurchase productPurchases) {
+        if(productPurchases.getPurchase() != this) productPurchases.addPurchase(this);
+        productPurchase.add(productPurchases);
     }
 }
