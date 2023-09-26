@@ -34,6 +34,7 @@ public class User extends Auditable {
     private String socialType;
 
     @Column(length = 2000)
+    @Setter
     private String filePath;
 
     @Enumerated(EnumType.STRING)

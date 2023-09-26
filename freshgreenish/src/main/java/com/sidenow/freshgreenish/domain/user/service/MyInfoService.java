@@ -4,6 +4,7 @@ import com.sidenow.freshgreenish.domain.address.dto.PostAddressDTO;
 import com.sidenow.freshgreenish.domain.address.entity.Address;
 import com.sidenow.freshgreenish.domain.address.repository.AddressRepository;
 import com.sidenow.freshgreenish.domain.address.service.AddressService;
+import com.sidenow.freshgreenish.domain.user.dto.UserImageVO;
 import com.sidenow.freshgreenish.domain.user.entity.User;
 import com.sidenow.freshgreenish.domain.user.repository.MyInfoRepository;
 import com.sidenow.freshgreenish.domain.user.repository.UserRepository;
@@ -14,6 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 @Slf4j
 @Service
@@ -22,8 +24,9 @@ public class MyInfoService {
 
     private final UserRepository userRepository;
     private final AddressRepository addressRepository;
+    private final UserImageFileHandler fileHandler;
 
-    public void changeNickname(@AuthenticationPrincipal OAuth2User oauth, String nickname) {
+    public void changeNickname(OAuth2User oauth, String nickname) {
         if (userRepository.existsByNickname(nickname)) {
             throw new BusinessLogicException(ExceptionCode.DUPLICATE_NICKNAME);
         } else{
@@ -41,6 +44,17 @@ public class MyInfoService {
         addressRepository.save(address);
     }
 
+    public void changeImage(OAuth2User oauth, MultipartFile filepath) throws Exception {
+        User user = findUser(oauth);
+        UserImageVO imageVO = fileHandler.parseImageURL(filepath);
+        if (imageVO == null){
+            throw new BusinessLogicException(ExceptionCode.IMAGE_NOT_FOUND);
+        } else{
+            user.setFilePath(imageVO.getStoredFilePath());
+            userRepository.save(user);
+        }
+    }
+
     public User findUser(OAuth2User oauth){
         String userEmail = oauth.getAttribute("email");
         return userRepository.findByEmail(userEmail)
@@ -48,4 +62,6 @@ public class MyInfoService {
                         NullPointerException::new
                 );
     }
+
+
 }

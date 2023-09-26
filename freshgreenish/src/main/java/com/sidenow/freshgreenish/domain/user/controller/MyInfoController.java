@@ -9,6 +9,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
 
 
 @RestController
@@ -40,6 +43,15 @@ public class MyInfoController {
             throw new BusinessLogicException(ExceptionCode.EMAIL_VERIFICATION_FIRST);
         } else{
             myInfoService.changeAddress(oauth, dto);
+        }
+    }
+
+    @PostMapping("/mypage/changeImage")
+    public void ChangeUserImage(@AuthenticationPrincipal OAuth2User oauth, @RequestParam(name="filepath") MultipartFile filepath) throws Exception {
+        if (!isEmailAuthenticatedUser){
+            throw new BusinessLogicException(ExceptionCode.EMAIL_VERIFICATION_FIRST);
+        } else{
+            myInfoService.changeImage(oauth, filepath);
         }
     }
 }

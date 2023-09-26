@@ -10,5 +10,10 @@
 <div sec:authorize="isAuthenticated()">
     Logged in as: <span id="user" th:text="${userName}">None</span>
 </div>
+<form name="form" method="post" action="http://localhost:8080/mypage/changeImage" enctype="multipart/form-data">
+    <input type="file" name="filepath" multiple="multiple" value="사진 변경"/>
+    <input type="submit" id="submit" value="확인"/>
+</form>
+<img id="imgId" th:src="@{${imgUrl}}" alt="유저이미지" th:if="${imgUrl != null}" />
 </body>
 </html>
