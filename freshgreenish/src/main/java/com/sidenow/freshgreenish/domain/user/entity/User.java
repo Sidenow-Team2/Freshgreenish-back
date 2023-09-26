@@ -26,6 +26,7 @@ public class User extends Auditable {
     @Setter
     private String nickname;
 
+    @Setter
     private Integer saved_money;
 
     private Boolean isJoinRegular;

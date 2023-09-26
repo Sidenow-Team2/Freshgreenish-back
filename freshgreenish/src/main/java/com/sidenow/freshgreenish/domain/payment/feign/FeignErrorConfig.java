@@ -1,0 +1,25 @@
+package com.sidenow.freshgreenish.domain.payment.feign;
+
+import com.sidenow.freshgreenish.global.exception.BusinessLogicException;
+import com.sidenow.freshgreenish.global.exception.ExceptionCode;
+import feign.codec.ErrorDecoder;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Bean;
+
+@Slf4j
+public class FeignErrorConfig {
+    @Bean
+    public ErrorDecoder errorDecoder() {
+        return ((methodKey, response) -> {
+            if (log.isErrorEnabled()) {
+                log.error("{} 요청이 실패했습니다. requestUrl: {}, requestBody: {}, responseBody: {}",
+                        methodKey,
+                        response.request().url(),
+                        getFeignClientUtils.getRequestBody(response),
+                        getFeignClientUtils.getResponseBody(response)
+                );
+            }
+            return new BusinessLogicException(ExceptionCode.PAYMENT_URL_REQUEST_FAILED);
+        });
+    }
+}

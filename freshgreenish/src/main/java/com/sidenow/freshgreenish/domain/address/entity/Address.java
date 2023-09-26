@@ -57,6 +57,7 @@ public class Address extends Auditable {
         this.phoneNumber = phoneNumber;
     }
 
+<<<<<<< HEAD
     public Address updateAddress(Integer postalCode, String addressMain, String addressDetail, String addressNickname, Boolean isDefaultAddress, String recipientName, String phoneNumber) {
         this.postalCode = postalCode;
         this.addressMain = addressMain;
@@ -68,4 +69,6 @@ public class Address extends Auditable {
         return this;
     }
 
+=======
+>>>>>>> 1c87bc00f7843704fadf2a39338cd8cb8f70be74
 }

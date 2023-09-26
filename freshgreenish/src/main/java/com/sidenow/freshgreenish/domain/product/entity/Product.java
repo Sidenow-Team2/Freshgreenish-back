@@ -3,6 +3,7 @@ package com.sidenow.freshgreenish.domain.product.entity;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.sidenow.freshgreenish.domain.basket.entity.ProductBasket;
 import com.sidenow.freshgreenish.domain.product.dto.EditProduct;
+import com.sidenow.freshgreenish.domain.purchase.entity.ProductPurchase;
 import com.sidenow.freshgreenish.global.utils.Auditable;
 import jakarta.persistence.*;
 import lombok.*;
@@ -73,6 +74,10 @@ public class Product extends Auditable {
     @JsonManagedReference
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     private List<ProductBasket> productBasket = new ArrayList<>();
+
+    @JsonManagedReference
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
+    private List<ProductPurchase> productPurchase = new ArrayList<>();
 
     @Builder
     public Product(Long productId, String title, String subTitle, Integer price, Integer discountPrice, String detail,
@@ -159,5 +164,13 @@ public class Product extends Auditable {
 
     public void reduceLikeCount() {
         likeCount--;
+    }
+
+    public void addPurchaseCount() {
+        purchaseCount++;
+    }
+
+    public void reducePurchaseCount() {
+        purchaseCount--;
     }
 }

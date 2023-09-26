@@ -1,92 +1,71 @@
 package com.sidenow.freshgreenish.domain.payment.entity;
 
-import com.sidenow.freshgreenish.domain.payment.dto.PaymentResponseDto;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.sidenow.freshgreenish.domain.payment.toss.ReadyToTossPayInfo;
 import com.sidenow.freshgreenish.domain.purchase.entity.Purchase;
-import com.sidenow.freshgreenish.global.utils.Auditable;
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.SQLDelete;
-import org.hibernate.annotations.Where;
-
-import java.util.UUID;
 
 @Entity
 @Getter
-@Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@SQLDelete(sql = "UPDATE payment_info SET deleted = true WHERE id = ?")
-@Where(clause = "deleted = false")
-@ToString
-public class PaymentInfo extends Auditable {
+public class PaymentInfo {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "PAYMENT_INFO_ID")
-    private Long paymentInfoId;
+    @Column(name = "PAYMENT_ID")
+    private Long paymentId;
 
-    @Column(length = 2000)
-    private String cid; // Mid
+    /* ---------- 카카오 ---------- */
 
-    @Column(length = 2000)
-    private String tid; // payment
-
-    @Column(length = 2000)
-    private String partnerOrderId; // orderId
-
-    @Column(length = 20)
+    private String cid;
+    private String tid;
+    private String partnerOrderId;
     private String partnerUserId;
-
-    private Long totalAmount;
-
-    @Column(length = 2000)
+    private String itemName;
+    private Integer totalAmount;
+    private Integer valAmount;
+    private Integer taxFreeAmount;
     private String approvalUrl;
-
-    @Column(length = 2000)
-    private String failUrl;
-
-    @Column(length = 2000)
     private String cancelUrl;
 
-    private Boolean successStatus;
+    /* ---------- 공통 ---------- */
 
-    private String failReasons;
+    private String failUrl;
+
+    /* ---------- 토스 ---------- */
+
+    private Integer amount;
+    private String orderId;
+    private String orderName;
+    private String successUrl;
+    private String paymentKey;
+
+    /* -------------------- */
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "PURCHASE_ID")
+    @JsonManagedReference
     private Purchase purchase;
 
     @Builder
-    public PaymentInfo(String cid, String tid, String partnerOrderId, String partnerUserId, Long totalAmount, String approvalUrl, String failUrl, String cancelUrl, Boolean successStatus, String failReasons, Purchase purchase) {
-        this.cid = cid;
-        this.tid = tid;
-        this.partnerOrderId = partnerOrderId;
-        this.partnerUserId = partnerUserId;
-        this.totalAmount = totalAmount;
-        this.approvalUrl = approvalUrl;
-        this.failUrl = failUrl;
-        this.cancelUrl = cancelUrl;
-        this.successStatus = successStatus;
-        this.failReasons = failReasons;
+    public PaymentInfo(Purchase purchase) {
         this.purchase = purchase;
     }
 
-    public void setTossPayment(String cid) {
-        this.cid = cid;
+    public void setPurchase(Purchase purchase) {
+        this.purchase = purchase;
     }
 
-    public PaymentResponseDto toTossPaymentResponseDto(){
-        return PaymentResponseDto.builder()
-                .totalAmount(totalAmount)
-                .orderId(this.partnerOrderId)
-                .purchaseId(purchase.getPurchaseId())
-                .build();
+    public void setPaymentKey(String paymentKey) {
+        this.paymentKey = paymentKey;
     }
 
-    public static PaymentInfo toInitial(Purchase purchase, Long totalAmount){
-        return PaymentInfo.builder()
-                .totalAmount(totalAmount)
-                .partnerOrderId(UUID.randomUUID().toString())
-                .purchase(purchase)
-                .build();
+    public void setTossPaymentInfo(ReadyToTossPayInfo body) {
+        this.failUrl = body.getFailUrl();
+        this.amount = body.getAmount();
+        this.orderId = body.getOrderId();
+        this.orderName = body.getOrderName();
+        this.successUrl = body.getSuccessUrl();
     }
 }
 
