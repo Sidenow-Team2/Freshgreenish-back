@@ -14,6 +14,7 @@ public class OAuthAttributes {  //OAuth2UserService를 통해 가져온 OAuth2Us
     private String name;
     private String email;
     private String picture;
+    private static String socialtype;
 
     @Builder
     public OAuthAttributes(Map<String, Object> attributes, String nameAttributeKey, String name, String email, String picture) {
@@ -25,7 +26,7 @@ public class OAuthAttributes {  //OAuth2UserService를 통해 가져온 OAuth2Us
     }
 
     public static OAuthAttributes of(String registrationId, String userNameAttributeName, Map<String, Object> attributes) {
-
+        socialtype = registrationId;
         if("naver".equals(registrationId)) {
             return ofNaver("id", attributes);
         }
@@ -60,6 +61,7 @@ public class OAuthAttributes {  //OAuth2UserService를 통해 가져온 OAuth2Us
         return User.builder()
                 .nickname(name)
                 .email(email)
+                .socialType(socialtype)
                 .filePath(picture)
                 .role(Role.GUEST)
                 .build();
