@@ -6,7 +6,6 @@ import com.sidenow.freshgreenish.domain.address.repository.AddressRepository;
 import com.sidenow.freshgreenish.domain.address.service.AddressService;
 import com.sidenow.freshgreenish.domain.user.dto.UserImageVO;
 import com.sidenow.freshgreenish.domain.user.entity.User;
-import com.sidenow.freshgreenish.domain.user.repository.MyInfoRepository;
 import com.sidenow.freshgreenish.domain.user.repository.UserRepository;
 import com.sidenow.freshgreenish.global.exception.BusinessLogicException;
 import com.sidenow.freshgreenish.global.exception.ExceptionCode;

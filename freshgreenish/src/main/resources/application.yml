@@ -27,10 +27,23 @@ spring:
     suffix: .html
     mode: HTML
     cache: false
-payment:
-  toss:
-    test_client_api_key: test_ck_QbgMGZzorzebyb47vGKVl5E1em4d
-    test_secrete_api_key: test_sk_Z1aOwX7K8me4B46yGNA8yQxzvNPG
-    success_url: "http://localhost:8080/payment/toss/success"
-    fail_url: "http://localhost:8080/payment/toss/fail"
 
+kakao:
+  admin:
+    key: bd19866f3ada589ede420687d2af3d3a
+  host: https://kapi.kakao.com
+  uri:
+    pay-process: /api/purchase
+  pay:
+    ready: /v1/payment/ready
+    approve: /v1/payment/approve
+    cid: TC0ONETIME
+    taxfree: 1000
+    cancel: /v1/payment/cancel
+    order: /v1/payment/order
+
+toss:
+  secret-key: test_sk_ZORzdMaqN3wpY7eD47bV5AkYXQGw
+
+pay:
+  request-url: http://localhost:8080
