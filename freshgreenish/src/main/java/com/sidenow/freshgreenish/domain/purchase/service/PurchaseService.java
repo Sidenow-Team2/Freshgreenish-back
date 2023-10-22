@@ -43,6 +43,7 @@ public class PurchaseService {
                 .addressId(1L) // 수정 예정
                 .usedPoints(0)
                 .count(post.getCount())
+                .totalCount(post.getCount())
                 .isRegularDelivery(false)
                 .totalPrice(productDbService.getPrice(productId) * post.getCount())
                 .totalPriceBeforeUsePoint(productDbService.getPrice(productId) * post.getCount())
@@ -79,6 +80,7 @@ public class PurchaseService {
                 .addressId(1L) // 수정 예정
                 .usedPoints(0)
                 .count(1)
+                .totalCount(1)
                 .isRegularDelivery(false)
                 .build();
 

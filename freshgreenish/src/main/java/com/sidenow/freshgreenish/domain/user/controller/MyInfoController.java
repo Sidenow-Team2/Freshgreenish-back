@@ -54,5 +54,11 @@ public class MyInfoController {
 //            myInfoService.changeImage(oauth, filepath);
 //        }
         myInfoService.changeImage(oauth, filepath);
+
+        if (!isEmailAuthenticatedUser){
+            throw new BusinessLogicException(ExceptionCode.EMAIL_VERIFICATION_FIRST);
+        } else{
+            myInfoService.changeImage(oauth, filepath);
+        }
     }
 }
