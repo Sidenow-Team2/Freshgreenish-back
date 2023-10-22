@@ -1,8 +1,12 @@
 package com.sidenow.freshgreenish.domain.payment.service;
 
+import com.sidenow.freshgreenish.domain.basket.dto.DeleteBasket;
+import com.sidenow.freshgreenish.domain.basket.entity.Basket;
+import com.sidenow.freshgreenish.domain.basket.service.BasketDbService;
 import com.sidenow.freshgreenish.domain.basket.service.BasketService;
 import com.sidenow.freshgreenish.domain.payment.dto.Message;
 import com.sidenow.freshgreenish.domain.payment.entity.PaymentInfo;
+import com.sidenow.freshgreenish.domain.payment.kakao.*;
 import com.sidenow.freshgreenish.domain.payment.toss.*;
 import com.sidenow.freshgreenish.domain.product.entity.Product;
 import com.sidenow.freshgreenish.domain.product.service.ProductDbService;
@@ -31,6 +35,7 @@ public class PaymentService {
     private final PurchaseDbService purchaseDbService;
     private final PaymentDbService paymentDbService;
     private final ProductDbService productDbService;
+    private final BasketDbService basketDbService;
     private final BasketService basketService;
     private final UserDbService userDbService;
     private final FeignService feignService;
@@ -81,6 +86,36 @@ public class PaymentService {
     }
 
     @Transactional
+    public Message getKaKaoPayUrl(Long purchaseId) {
+        Purchase findPurchase = purchaseDbService.ifExistsReturnPurchase(purchaseId);
+
+        if (!findPurchase.getPurchaseStatus().equals(PAY_IN_PROGRESS)) {
+            throw new BusinessLogicException(INVALID_ACCESS);
+        }
+
+        PaymentInfo paymentInfo = PaymentInfo.builder()
+                .purchase(findPurchase)
+                .build();
+
+        PaymentInfo findPaymentInfo = paymentDbService.savePayment(paymentInfo);
+
+        KakaoPayHeader headers = feignService.setKakaoHeaders();
+        ReadyToKakaoPayInfo params = feignService.setReadyParams(
+                requestUrl, purchaseId, findPurchase.getTotalPrice(), findPurchase.getUserId(),
+                createOrderName(findPurchase.getCreatedAt()), findPurchase.getTotalCount());
+
+        KakaoPayReadyInfo payReadyInfo = feignService.getPayReadyInfo(headers, params);
+
+        findPaymentInfo.setKakaoPaymentInfo(params, payReadyInfo.getTid());
+        paymentDbService.savePayment(findPaymentInfo);
+
+        return Message.builder()
+                .data(payReadyInfo.getNextRedirectPcUrl())
+                .message(KAKAO_PAY_URI_MSG)
+                .build();
+    }
+
+    @Transactional
     public Message getSuccessTossPaymentInfo(Long purchaseId) {
         Purchase findPurchase = purchaseDbService.ifExistsReturnPurchase(purchaseId);
         PaymentInfo findPaymentInfo = paymentDbService.ifExistsReturnPaymentInfo(purchaseId);
@@ -106,10 +141,19 @@ public class PaymentService {
         findPurchase.setStatus(PAY_SUCCESS);
         purchaseDbService.savePurchase(findPurchase);
 
-        List<Product> findProduct = purchaseDbService.getProductIdList(purchaseId, findPurchase.getUserId());
-        changePurchaseCount(findProduct);
+        List<Product> findProducts = purchaseDbService.getProductIdList(purchaseId, findPurchase.getUserId());
+        changePurchaseCount(findProducts);
 
-        // 장바구니에 있는 상품 결제 완료 시 장바구니 내역 삭제 코드 추가
+        Basket findBasket = basketDbService.ifExistsReturnBasketByUserId(findPurchase.getUserId());
+        List<Long> deleteProductIdList = basketDbService.getProductIdInBasket(findBasket.getBasketId());
+
+        if (deleteProductIdList.size() != 0) {
+            DeleteBasket deleteBasket = DeleteBasket.builder()
+                    .deleteProductId(deleteProductIdList)
+                    .build();
+
+            basketService.deleteProductInBasket(findPurchase.getUserId(), deleteBasket);
+        }
 
         User findUser = userDbService.ifExistsReturnUser(findPurchase.getUserId());
         findUser.setSaved_money(findUser.getSaved_money() - findPurchase.getUsedPoints());
@@ -118,6 +162,41 @@ public class PaymentService {
 
         return Message.builder()
                 .data(tossPaySuccessInfo)
+                .message(INFO_URI_MSG)
+                .build();
+    }
+
+    @Transactional
+    public Message getSuccessKakaoPaymentInfo(Long purchaseId, String pgToken) {
+        Purchase findPurchase = purchaseDbService.ifExistsReturnPurchase(purchaseId);
+        PaymentInfo findPaymentInfo = paymentDbService.ifExistsReturnPaymentInfo(purchaseId);
+
+        KakaoPayHeader headers = feignService.setKakaoHeaders();
+        RequestForKakaoPayInfo params = feignService.setRequestParams(pgToken, findPaymentInfo);
+
+        KakaoPaySuccessInfo kakaoPaySuccessInfo = feignService.getSuccessKakaoResponse(headers, params);
+
+        kakaoPaySuccessInfo.setOrderStatus(ORDER_APPROVED);
+        findPurchase.setPaymentMethod("카카오페이");
+        findPurchase.setStatus(PAY_SUCCESS);
+        purchaseDbService.savePurchase(findPurchase);
+
+        List<Product> findProducts = purchaseDbService.getProductIdList(purchaseId, findPurchase.getUserId());
+        changePurchaseCount(findProducts);
+
+        Basket findBasket = basketDbService.ifExistsReturnBasketByUserId(findPurchase.getUserId());
+        List<Long> deleteProductIdList = basketDbService.getProductIdInBasket(findBasket.getBasketId());
+
+        if (deleteProductIdList.size() != 0) {
+            DeleteBasket deleteBasket = DeleteBasket.builder()
+                    .deleteProductId(deleteProductIdList)
+                    .build();
+
+            basketService.deleteProductInBasket(findPurchase.getUserId(), deleteBasket);
+        }
+
+        return Message.builder()
+                .data(kakaoPaySuccessInfo)
                 .message(INFO_URI_MSG)
                 .build();
     }

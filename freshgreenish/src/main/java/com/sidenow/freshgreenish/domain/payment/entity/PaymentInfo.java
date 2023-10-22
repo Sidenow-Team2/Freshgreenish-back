@@ -1,6 +1,7 @@
 package com.sidenow.freshgreenish.domain.payment.entity;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.sidenow.freshgreenish.domain.payment.kakao.ReadyToKakaoPayInfo;
 import com.sidenow.freshgreenish.domain.payment.toss.ReadyToTossPayInfo;
 import com.sidenow.freshgreenish.domain.purchase.entity.Purchase;
 import jakarta.persistence.*;
@@ -14,6 +15,8 @@ public class PaymentInfo {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "PAYMENT_ID")
     private Long paymentId;
+
+    private Integer quantity = 0;
 
     /* ---------- 카카오 ---------- */
 
@@ -66,6 +69,21 @@ public class PaymentInfo {
         this.orderId = body.getOrderId();
         this.orderName = body.getOrderName();
         this.successUrl = body.getSuccessUrl();
+    }
+
+    public void setKakaoPaymentInfo(ReadyToKakaoPayInfo params, String tid) {
+        this.cid = params.getCid();
+        this.tid = tid;
+        this.partnerOrderId = params.getPartner_order_id();
+        this.partnerUserId = params.getPartner_user_id();
+        this.itemName = params.getItem_name();
+        this.quantity = params.getQuantity();
+        this.totalAmount = params.getTotal_amount();
+        this.valAmount = params.getVal_amount();
+        this.taxFreeAmount = params.getTax_free_amount();
+        this.approvalUrl = params.getApproval_url();
+        this.failUrl = params.getFail_url();
+        this.cancelUrl = params.getCancel_url();
     }
 }
 
