@@ -22,10 +22,15 @@ public class Purchase extends Auditable {
     @Column(name = "PURCHASE_ID")
     private Long purchaseId;
     private Long userId;
+
+    @Setter
     private Long addressId;
 
     @Setter
     private String purchaseNumber;
+
+    @Setter
+    private Integer totalCount;
 
     // 다건 결제
     private Long basketId;
@@ -59,14 +64,16 @@ public class Purchase extends Auditable {
     private List<ProductPurchase> productPurchase = new ArrayList<>();
 
     @Builder
-    public Purchase(Long purchaseId, Long basketId, Long userId, Long addressId, Long productId, Integer count,
-                    Integer totalPrice, Boolean isRegularDelivery, Integer totalPriceBeforeUsePoint, Integer usedPoints) {
+    public Purchase(Long purchaseId, Long basketId, Long userId, Long addressId, Long productId,
+                    Integer count, Integer totalCount, Integer totalPrice, Boolean isRegularDelivery,
+                    Integer totalPriceBeforeUsePoint, Integer usedPoints) {
         this.purchaseId = purchaseId;
         this.basketId = basketId;
         this.userId = userId;
         this.addressId = addressId;
         this.productId = productId;
         this.count = count;
+        this.totalCount = totalCount;
         this.totalPrice = totalPrice;
         this.isRegularDelivery = isRegularDelivery;
         this.totalPriceBeforeUsePoint = totalPriceBeforeUsePoint;

@@ -73,4 +73,13 @@ public class BasketRepositoryImpl implements CustomBasketRepository {
                         .and(productBasket.product.productId.eq(productId)))
                 .fetchOne();
     }
+
+    @Override
+    public List<Long> getProductIdInBasket(Long basketId) {
+        return queryFactory
+                .select(product.productId)
+                .from(productBasket)
+                .where(productBasket.basket.basketId.eq(basketId))
+                .fetch();
+    }
 }

@@ -36,6 +36,9 @@ public class BasketDbService {
 
         return Basket.builder()
                 .userId(userId)
+                .totalBasketPrice(0)
+                .discountedBasketPrice(0)
+                .discountedBasketTotalPrice(0)
                 .build();
     }
 
@@ -60,6 +63,10 @@ public class BasketDbService {
 
     public Page<GetBasket> getBasketList(Long userId, Pageable pageable) {
         return basketRepository.getBasketList(userId, pageable);
+    }
+
+    public List<Long> getProductIdInBasket(Long basketId) {
+        return basketRepository.getProductIdInBasket(basketId);
     }
 
     public Integer getTotalBasketPrice(Long basketId) {
