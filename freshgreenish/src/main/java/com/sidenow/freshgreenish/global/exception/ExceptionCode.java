@@ -17,6 +17,7 @@ public enum ExceptionCode {
     PURCHASE_NOT_FOUND(415, "존재하지 않는 구매 정보입니다."),
     PAYMENT_NOT_FOUND(415, "존재하지 않는 결제 정보입니다."),
     BASKET_NOT_FOUND(415, "존재하지 않는 장바구니입니다."),
+    DELIVERY_NOT_FOUND(415, "존재하지 않는 정기 배송 정보입니다."),
 
     UNAUTHORIZED_FOR_UPDATE(403, "수정 권한이 없습니다."),
     UNAUTHORIZED_FOR_DELETE(403, "삭제 권한이 없습니다."),

@@ -22,17 +22,26 @@ public class Basket{
     private Integer discountedBasketTotalPrice;
     private Integer discountedBasketPrice;
 
+    private Integer totalRegularPrice;
+    private Integer discountedRegularTotalPrice;
+    private Integer discountedRegularPrice;
+
     @JsonManagedReference
     @OneToMany(mappedBy = "basket", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     private List<ProductBasket> productBasket = new ArrayList<>();
 
     @Builder
-    public Basket(Long basketId, Long userId, Integer totalBasketPrice, Integer discountedBasketTotalPrice, Integer discountedBasketPrice) {
+    public Basket(Long basketId, Long userId, Integer totalBasketPrice, Integer discountedBasketTotalPrice,
+                  Integer discountedBasketPrice, Integer totalRegularPrice, Integer discountedRegularTotalPrice,
+                  Integer discountedRegularPrice) {
         this.basketId = basketId;
         this.userId = userId;
         this.totalBasketPrice = totalBasketPrice;
         this.discountedBasketTotalPrice = discountedBasketTotalPrice;
         this.discountedBasketPrice = discountedBasketPrice;
+        this.totalRegularPrice = totalRegularPrice;
+        this.discountedRegularTotalPrice = discountedRegularTotalPrice;
+        this.discountedRegularPrice = discountedRegularPrice;
     }
 
     public void setBasketPrice(Integer totalBasketPrice, Integer discountedBasketTotalPrice, Integer discountedBasketPrice) {
@@ -41,13 +50,15 @@ public class Basket{
         this.discountedBasketTotalPrice = discountedBasketTotalPrice;
     }
 
+    public void setRegularPrice(Integer totalRegularPrice, Integer discountedRegularTotalPrice,
+                                Integer discountedRegularPrice) {
+        this.totalRegularPrice = totalRegularPrice;
+        this.discountedRegularTotalPrice = discountedRegularTotalPrice;
+        this.discountedRegularPrice = discountedRegularPrice;
+    }
+
     public void addProductBasket(ProductBasket productBaskets) {
         if(productBaskets.getBasket() != this) productBaskets.addBasket(this);
         productBasket.add(productBaskets);
-    }
-
-    public void editProductImage(List<ProductBasket> productBaskets) {
-        this.productBasket.clear();
-        this.productBasket.addAll(productBaskets);
     }
 }

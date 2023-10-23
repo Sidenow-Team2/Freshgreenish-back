@@ -1,7 +1,10 @@
 package com.sidenow.freshgreenish.domain.purchase.service;
 
+import com.sidenow.freshgreenish.domain.address.service.AddressDbService;
 import com.sidenow.freshgreenish.domain.basket.entity.Basket;
 import com.sidenow.freshgreenish.domain.basket.service.BasketDbService;
+import com.sidenow.freshgreenish.domain.payment.entity.PaymentInfo;
+import com.sidenow.freshgreenish.domain.payment.service.PaymentDbService;
 import com.sidenow.freshgreenish.domain.product.entity.Product;
 import com.sidenow.freshgreenish.domain.product.service.ProductDbService;
 import com.sidenow.freshgreenish.domain.purchase.dto.*;
@@ -21,26 +24,27 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class PurchaseService {
     private final PurchaseDbService purchaseDbService;
+    private final PaymentDbService paymentDbService;
     private final ProductDbService productDbService;
     private final BasketDbService basketDbService;
+    private final AddressDbService addressDbService;
     private final UserDbService userDbService;
 
     public void createSinglePurchase(Long productId, OAuth2User oauth, PostPurchase post) {
-        User findUser = userDbService.findUserByEmail(oauth);
-        Basket findBasket = basketDbService.ifExistsReturnBasket(findUser.getUserId());
+        Long userId = userDbService.findUserIdByOauth(oauth);
+        Basket findBasket = basketDbService.ifExistsReturnBasket(userId);
         basketDbService.saveBasket(findBasket);
 
         Purchase purchase = Purchase.builder()
                 .productId(productId)
-                .userId(findUser.getUserId())
-                .addressId(1L) // 수정 예정
+                .userId(userId)
+                .addressId(0L)
                 .usedPoints(0)
                 .count(post.getCount())
                 .totalCount(post.getCount())
@@ -66,18 +70,25 @@ public class PurchaseService {
         productPurchase.addPurchase(findPurchase);
         productPurchase.addProduct(findProduct);
 
-        purchaseDbService.savePurchase(findPurchase);
+        Purchase newPurchase = purchaseDbService.saveAndReturnPurchase(findPurchase);
+
+        PaymentInfo paymentInfo = PaymentInfo.builder()
+                .purchase(newPurchase)
+                .orderName(createOrderName(purchase.getCreatedAt()))
+                .build();
+
+        paymentDbService.savePayment(paymentInfo);
     }
 
     public void createSelectPurchase(OAuth2User oauth, PostSelectPurchase post) {
-        User findUser = userDbService.findUserByEmail(oauth);
-        Basket findBasket = basketDbService.ifExistsReturnBasketByUserId(findUser.getUserId());
+        Long userId = userDbService.findUserIdByOauth(oauth);
+        Basket findBasket = basketDbService.ifExistsReturnBasketByUserId(userId);
 
         Purchase purchase = Purchase.builder()
                 .productId(post.getProductIdList().get(0))
                 .basketId(findBasket.getBasketId())
-                .userId(findUser.getUserId())
-                .addressId(1L) // 수정 예정
+                .userId(userId)
+                .addressId(0L)
                 .usedPoints(0)
                 .count(1)
                 .totalCount(1)
@@ -94,18 +105,60 @@ public class PurchaseService {
 
         createAndSaveProductPurchase(post.getProductIdList(), findPurchase);
 
-        purchaseDbService.savePurchase(findPurchase);
+        Purchase newPurchase = purchaseDbService.saveAndReturnPurchase(findPurchase);
+
+        PaymentInfo paymentInfo = PaymentInfo.builder()
+                .purchase(newPurchase)
+                .orderName(createOrderName(purchase.getCreatedAt()))
+                .build();
+
+        paymentDbService.savePayment(paymentInfo);
+    }
+
+    public void createRegularPurchaseSelect(OAuth2User oauth, PostSelectPurchase post) {
+        Long userId = userDbService.findUserIdByOauth(oauth);
+        Basket findBasket = basketDbService.ifExistsReturnBasketByUserId(userId);
+
+        Purchase purchase = Purchase.builder()
+                .productId(post.getProductIdList().get(0))
+                .basketId(findBasket.getBasketId())
+                .userId(userId)
+                .addressId(0L)
+                .usedPoints(0)
+                .count(1)
+                .totalCount(1)
+                .isRegularDelivery(true)
+                .build();
+
+        purchase.setStatus(PurchaseStatus.PAY_IN_PROGRESS);
+
+        Purchase findPurchase = purchaseDbService.saveAndReturnPurchase(purchase);
+
+        findPurchase.setPurchaseNumber(createPurchaseNumber(findPurchase.getCreatedAt()));
+        findPurchase.setTotalPrice(calculateTotalRegularPrice(post.getProductIdList(), findBasket.getBasketId()));
+        findPurchase.setTotalPriceBeforeUsePoint(calculateTotalRegularPrice(post.getProductIdList(), findBasket.getBasketId()));
+
+        createAndSaveProductPurchase(post.getProductIdList(), findPurchase);
+
+        Purchase newPurchase = purchaseDbService.saveAndReturnPurchase(findPurchase);
+
+        PaymentInfo paymentInfo = PaymentInfo.builder()
+                .purchase(newPurchase)
+                .orderName(createOrderName(purchase.getCreatedAt()))
+                .build();
+
+        paymentDbService.savePayment(paymentInfo);
     }
 
     public void createAllPurchase(OAuth2User oauth) {
-        User findUser = userDbService.findUserByEmail(oauth);
-        Basket findBasket = basketDbService.ifExistsReturnBasketByUserId(findUser.getUserId());
+        Long userId = userDbService.findUserIdByOauth(oauth);
+        Basket findBasket = basketDbService.ifExistsReturnBasketByUserId(userId);
 
         Purchase purchase = Purchase.builder()
                 .productId(findBasket.getProductBasket().get(0).getProduct().getProductId())
                 .basketId(findBasket.getBasketId())
-                .userId(findUser.getUserId())
-                .addressId(1L) // 수정 예정
+                .userId(userId)
+                .addressId(0L)
                 .usedPoints(0)
                 .count(1)
                 .isRegularDelivery(false)
@@ -118,49 +171,108 @@ public class PurchaseService {
         Purchase findPurchase = purchaseDbService.saveAndReturnPurchase(purchase);
         findPurchase.setPurchaseNumber(createPurchaseNumber(findPurchase.getCreatedAt()));
 
-        List<Long> productIdList = findBasket.getProductBasket().stream()
-                .map(m -> m.getProduct().getProductId())
-                .collect(Collectors.toList());
-
+        List<Long> productIdList = basketDbService.getProductIdInBasket(findBasket.getBasketId());
         createAndSaveProductPurchase(productIdList, findPurchase);
 
-        purchaseDbService.savePurchase(findPurchase);
+        Purchase newPurchase = purchaseDbService.saveAndReturnPurchase(findPurchase);
+
+        PaymentInfo paymentInfo = PaymentInfo.builder()
+                .purchase(newPurchase)
+                .orderName(createOrderName(purchase.getCreatedAt()))
+                .build();
+
+        paymentDbService.savePayment(paymentInfo);
+    }
+
+    public void createRegularPurchaseAll(OAuth2User oauth) {
+        Long userId = userDbService.findUserIdByOauth(oauth);
+        Basket findBasket = basketDbService.ifExistsReturnBasketByUserId(userId);
+
+        Purchase purchase = Purchase.builder()
+                .productId(findBasket.getProductBasket().get(0).getProduct().getProductId())
+                .basketId(findBasket.getBasketId())
+                .userId(userId)
+                .addressId(0L)
+                .usedPoints(0)
+                .count(1)
+                .isRegularDelivery(true)
+                .totalPrice(findBasket.getDiscountedBasketTotalPrice())
+                .totalPriceBeforeUsePoint(findBasket.getDiscountedBasketTotalPrice())
+                .build();
+
+        purchase.setStatus(PurchaseStatus.PAY_IN_PROGRESS);
+
+        Purchase findPurchase = purchaseDbService.saveAndReturnPurchase(purchase);
+        findPurchase.setPurchaseNumber(createPurchaseNumber(findPurchase.getCreatedAt()));
+
+        List<Long> productIdList = basketDbService.getProductIdInRegular(findBasket.getBasketId());
+        createAndSaveProductPurchase(productIdList, findPurchase);
+
+        Purchase newPurchase = purchaseDbService.saveAndReturnPurchase(findPurchase);
+
+        PaymentInfo paymentInfo = PaymentInfo.builder()
+                .purchase(newPurchase)
+                .orderName(createOrderName(purchase.getCreatedAt()))
+                .build();
+
+        paymentDbService.savePayment(paymentInfo);
     }
 
     public GetPurchaseInfo getPurchaseInfo(Long purchaseId, OAuth2User oauth) {
-        User findUser = userDbService.findUserByEmail(oauth);
+        Long userId = userDbService.findUserIdByOauth(oauth);
         Purchase findPurchase = purchaseDbService.ifExistsReturnPurchase(purchaseId);
 
         return GetPurchaseInfo.builder()
-                .orderLists(purchaseDbService
-                        .getOrderListByPurchaseIdAndUserId(purchaseId, findUser.getUserId()))
+                .orderLists(purchaseDbService.getOrderListByPurchaseIdAndUserId(findPurchase.getPurchaseId(), userId))
                 .addressInfo(purchaseDbService.getAddressInfo(findPurchase.getAddressId()))
-                .priceInfo(purchaseDbService.getPriceInfo(purchaseId, findUser.getUserId()))
+                .priceInfo(purchaseDbService.getPriceInfo(purchaseId, userId))
+                .build();
+    }
+
+    public GetPurchaseDetail getPurchaseDetail(Long purchaseId, OAuth2User oauth) {
+        Long userId = userDbService.findUserIdByOauth(oauth);
+        Purchase findPurchase = purchaseDbService.ifExistsReturnPurchase(purchaseId);
+
+        return GetPurchaseDetail.builder()
+                .orderLists(purchaseDbService.getOrderListByPurchaseIdAndUserId(purchaseId, userId))
+                .addressInfo(purchaseDbService.getAddressInfo(findPurchase.getAddressId()))
+                .priceInfo(purchaseDbService.getPriceInfo(purchaseId, userId))
                 .build();
     }
 
     public GetPurchaseInfo getBasketPurchaseInfo(Long purchaseId, OAuth2User oauth) {
-        User findUser = userDbService.findUserByEmail(oauth);
-        Basket findBasket = basketDbService.ifExistsReturnBasketByUserId(findUser.getUserId());
+        Long userId = userDbService.findUserIdByOauth(oauth);
+        Basket findBasket = basketDbService.ifExistsReturnBasketByUserId(userId);
         Purchase findPurchase = purchaseDbService.ifExistsReturnPurchase(purchaseId);
 
         return GetPurchaseInfo.builder()
-                .orderLists(purchaseDbService
-                        .getBasketOrderList(findBasket.getBasketId(), purchaseId, findUser.getUserId()))
+                .orderLists(purchaseDbService.getBasketOrderList(findBasket.getBasketId(), findPurchase.getPurchaseId(), userId))
                 .addressInfo(purchaseDbService.getAddressInfo(findPurchase.getAddressId()))
-                .priceInfo(purchaseDbService.getPriceInfo(purchaseId, findUser.getUserId()))
+                .priceInfo(purchaseDbService.getPriceInfo(purchaseId, userId))
+                .build();
+    }
+
+    public GetPurchaseInfo getRegularPurchaseInfo(Long purchaseId, OAuth2User oauth) {
+        Long userId = userDbService.findUserIdByOauth(oauth);
+        Basket findBasket = basketDbService.ifExistsReturnBasketByUserId(userId);
+        Purchase findPurchase = purchaseDbService.ifExistsReturnPurchase(purchaseId);
+
+        return GetPurchaseInfo.builder()
+                .orderLists(purchaseDbService.getRegularOrderList(findBasket.getBasketId(), purchaseId, userId))
+                .addressInfo(purchaseDbService.getAddressInfo(findPurchase.getAddressId()))
+                .priceInfo(purchaseDbService.getPriceInfo(purchaseId, userId))
                 .build();
     }
 
     public void usedPointInPurchase(Long purchaseId, OAuth2User oauth, PostUsePoint post) {
         Purchase findPurchase = purchaseDbService.ifExistsReturnPurchase(purchaseId);
-        User user = userDbService.findUserByEmail(oauth);
+        User findUser = userDbService.findUserByEmail(oauth);
 
         // TODO : test 용 코드, 추후 배포 시 코드 삭제
-        user.setSaved_money(5000);
-        userDbService.saveUser(user);
+        findUser.setSaved_money(5000);
+        userDbService.saveUser(findUser);
 
-        if (user.getSaved_money() < post.getPoint()) {
+        if (findUser.getSaved_money() < post.getPoint()) {
             new BusinessLogicException(ExceptionCode.POINTS_CANNOT_EXCEEDED);
         }
 
@@ -178,7 +290,7 @@ public class PurchaseService {
         Purchase findPurchase = purchaseDbService.ifExistsReturnPurchase(purchaseId);
 
         // 관리자 여부 확인 코드 필요
-        User findUser = userDbService.findUserByEmail(oauth);
+        User manager = userDbService.findUserByEmail(oauth);
 
         if (findPurchase.getPurchaseStatus().equals(PurchaseStatus.PAY_SUCCESS)) {
             findPurchase.setStatus(PurchaseStatus.DELIVERY_IN_PROGRESS);
@@ -186,14 +298,58 @@ public class PurchaseService {
             findPurchase.setStatus(PurchaseStatus.DURING_DELIVERY);
         } else if (findPurchase.getPurchaseStatus().equals(PurchaseStatus.DURING_DELIVERY)) {
             findPurchase.setStatus(PurchaseStatus.DELIVERY_SUCCESS);
+
+            User buyer = userDbService.ifExistsReturnUser(findPurchase.getUserId());
+            Integer originalReserves = buyer.getSaved_money();
+            Integer updateReserves = originalReserves + (findPurchase.getTotalPrice() * 1 / 100);
+
+            buyer.setSaved_money(updateReserves);
+
         } else throw new BusinessLogicException(ExceptionCode.INVALID_ACCESS);
 
         purchaseDbService.savePurchase(findPurchase);
     }
 
-    public Page<GetPurchaseOnMyPage> getPurchaseOnMyPage(OAuth2User oauth, Pageable pageable) {
+    public void masterChangePurchaseStatus(Long purchaseId, OAuth2User oauth, Integer statusId) {
+        Purchase findPurchase = purchaseDbService.ifExistsReturnPurchase(purchaseId);
+
+        // 관리자 여부 확인 코드 필요
         User findUser = userDbService.findUserByEmail(oauth);
-        return purchaseDbService.getPurchaseOnMyPage(findUser.getUserId(), pageable);
+
+        switch (statusId) {
+            case 1:
+                findPurchase.setStatus(PurchaseStatus.PAY_IN_PROGRESS);
+                break;
+            case 2:
+                findPurchase.setStatus(PurchaseStatus.PAY_SUCCESS);
+                break;
+            case 3:
+                findPurchase.setStatus(PurchaseStatus.DELIVERY_IN_PROGRESS);
+                break;
+            case 4:
+                findPurchase.setStatus(PurchaseStatus.DURING_DELIVERY);
+                break;
+            case 5:
+                findPurchase.setStatus(PurchaseStatus.DELIVERY_SUCCESS);
+                break;
+            case 6:
+                findPurchase.setStatus(PurchaseStatus.REFUND_PAYMENT);
+                break;
+            default:
+                throw new BusinessLogicException(ExceptionCode.INVALID_ACCESS);
+        }
+
+        purchaseDbService.savePurchase(findPurchase);
+    }
+
+    public Page<GetPurchaseOnMyPage> getPurchaseOnMyPage(OAuth2User oauth, Pageable pageable) {
+        Long userId = userDbService.findUserIdByOauth(oauth);
+        return purchaseDbService.getPurchaseOnMyPage(userId, pageable);
+    }
+
+    public Page<GetSubscriptionOnMyPage> getSubscriptionOnMyPage(OAuth2User oauth, Pageable pageable) {
+        Long userId = userDbService.findUserIdByOauth(oauth);
+        return purchaseDbService.getSubscriptionOnMyPage(userId, pageable);
     }
 
     private String createPurchaseNumber(LocalDateTime createdAt) {
@@ -235,5 +391,20 @@ public class PurchaseService {
         }
 
         return totalPrice;
+    }
+
+    private Integer calculateTotalRegularPrice(List<Long> productIdList, Long basketId) {
+        Integer totalPrice = 0;
+
+        for (int i = 0; i < productIdList.size(); i++) {
+            totalPrice = totalPrice + basketDbService.getProductPriceInRegular(productIdList.get(i), basketId);
+        }
+
+        return totalPrice;
+    }
+
+    private String createOrderName(LocalDateTime createdAt) {
+        String created = createdAt.toString();
+        return created.substring(0, 10);
     }
 }

@@ -1,10 +1,7 @@
 package com.sidenow.freshgreenish.domain.purchase.service;
 
 import com.sidenow.freshgreenish.domain.product.entity.Product;
-import com.sidenow.freshgreenish.domain.purchase.dto.AddressInfo;
-import com.sidenow.freshgreenish.domain.purchase.dto.GetPurchaseOnMyPage;
-import com.sidenow.freshgreenish.domain.purchase.dto.OrderList;
-import com.sidenow.freshgreenish.domain.purchase.dto.PriceInfo;
+import com.sidenow.freshgreenish.domain.purchase.dto.*;
 import com.sidenow.freshgreenish.domain.purchase.entity.Purchase;
 import com.sidenow.freshgreenish.domain.purchase.repository.PurchaseRepository;
 import com.sidenow.freshgreenish.global.exception.BusinessLogicException;
@@ -42,8 +39,16 @@ public class PurchaseDbService {
         return purchaseRepository.getBasketOrderList(basketId, purchaseId, userId);
     }
 
+    public List<OrderList> getRegularOrderList(Long basketId, Long purchaseId, Long userId) {
+        return purchaseRepository.getRegularOrderList(basketId, purchaseId, userId);
+    }
+
     public Page<GetPurchaseOnMyPage> getPurchaseOnMyPage(Long useId, Pageable pageable) {
         return purchaseRepository.getPurchaseOnMyPage(useId, pageable);
+    }
+
+    public Page<GetSubscriptionOnMyPage> getSubscriptionOnMyPage(Long useId, Pageable pageable) {
+        return purchaseRepository.getSubscriptionOnMyPage(useId, pageable);
     }
 
     public List<Product> getProductIdList(Long purchaseId, Long userId) {

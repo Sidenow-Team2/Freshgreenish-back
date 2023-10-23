@@ -33,6 +33,14 @@ public class PaymentController {
         return ResponseEntity.ok().body(message);
     }
 
+    // kakao 정기 결제 요청
+    @GetMapping("/purchase/{purchaseId}/subscription/kakao/payment")
+    public ResponseEntity<Message<?>> orderKakaoRegularPayment(@PathVariable("purchaseId") Long purchaseId) {
+        Message<?> message = paymentService.getKakaoSubUrl(purchaseId);
+        if (message.getData() == null) paymentService.getFailedPayMessage();
+        return ResponseEntity.ok().body(message);
+    }
+
     // Toss 결제 성공
     @GetMapping("/api/purchase/{purchaseId}/toss/success")
     public ResponseEntity<Message<?>> successTossPayment(@PathVariable("purchaseId") Long purchaseId) {
@@ -50,6 +58,15 @@ public class PaymentController {
         return ResponseEntity.ok().build();
     }
 
+    // kakao 정기 결제 성공
+    @GetMapping("/api/purchase/{purchaseId}/subscription/kakao/success")
+    public ResponseEntity<Message<?>> successKakaoRegularPayment(@PathVariable("purchaseId") Long purchaseId,
+                                                                 @RequestParam("pg_token") String pgToken) {
+        Message<?> message = paymentService.getSuccessKakaoRegularPaymentInfo(purchaseId, pgToken);
+        if (message.getData() == null) paymentService.getFailedPayMessage();
+        return ResponseEntity.ok().build();
+    }
+
     // Toss 결제 실패
     @GetMapping("/api/purchase/{purchaseId}/toss/failure")
     public ResponseEntity<String> failedTossPayment(@PathVariable("purchaseId") Long purchaseId) {
@@ -60,6 +77,14 @@ public class PaymentController {
     @GetMapping("/api/purchase/{purchaseId}/kakao/cancellation")
     public ResponseEntity<String> cancelKakaoPayment(@PathVariable("purchaseId") Long purchaseId) {
         return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(CANCELED_PAY_MESSAGE);
+    }
+
+    // kakao 정기 결제 취소(비활성화)
+    @GetMapping("/purchase/{purchaseId}/subscription/kakao/cancellation")
+    public ResponseEntity<String> cancelKakaoRegularPayment(@PathVariable("purchaseId") Long purchaseId) {
+        Message<?> message = paymentService.cancleKakaoRegularPayment(purchaseId);
+        if (message.getData() == null) paymentService.getFailedPayMessage();
+        return ResponseEntity.ok().build();
     }
 
     // kakao 결제 실패

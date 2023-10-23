@@ -36,7 +36,33 @@ public class BasketRepositoryImpl implements CustomBasketRepository {
                         product.discountPrice
                 )).from(productBasket)
                 .leftJoin(product).on(product.productId.eq(productBasket.product.productId))
-                .where(productBasket.basket.userId.eq(userId))
+                .where(productBasket.basket.userId.eq(userId)
+                        .and(productBasket.isRegular.eq(false)))
+                .orderBy(productBasket.productBasketId.desc())
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+
+        long total = results.size();
+        return new PageImpl<>(results, pageable, total);
+    }
+
+    @Override
+    public Page<GetBasket> getRegularList(Long userId, Pageable pageable) {
+        List<GetBasket> results = queryFactory.select(
+                        new QGetBasket(
+                                productBasket.productBasketId,
+                                product.productId,
+                                product.title,
+                                product.productFirstImage,
+                                productBasket.count,
+                                product.price,
+                                product.discountRate,
+                                product.discountPrice
+                        )).from(productBasket)
+                .leftJoin(product).on(product.productId.eq(productBasket.product.productId))
+                .where(productBasket.basket.userId.eq(userId)
+                        .and(productBasket.isRegular.eq(true)))
                 .orderBy(productBasket.productBasketId.desc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
@@ -51,7 +77,18 @@ public class BasketRepositoryImpl implements CustomBasketRepository {
         return queryFactory
                 .select(productBasket.totalPrice.sum())
                 .from(productBasket)
-                .where(productBasket.basket.basketId.eq(basketId))
+                .where(productBasket.basket.basketId.eq(basketId)
+                        .and(productBasket.isRegular.eq(false)))
+                .fetchOne();
+    }
+
+    @Override
+    public Integer getTotalRegularPrice(Long basketId) {
+        return queryFactory
+                .select(productBasket.totalPrice.sum())
+                .from(productBasket)
+                .where(productBasket.basket.basketId.eq(basketId)
+                        .and(productBasket.isRegular.eq(true)))
                 .fetchOne();
     }
 
@@ -60,7 +97,18 @@ public class BasketRepositoryImpl implements CustomBasketRepository {
         return queryFactory
                 .select(productBasket.discountedTotalPrice.sum())
                 .from(productBasket)
-                .where(productBasket.basket.basketId.eq(basketId))
+                .where(productBasket.basket.basketId.eq(basketId)
+                        .and(productBasket.isRegular.eq(false)))
+                .fetchOne();
+    }
+
+    @Override
+    public Integer getDiscountedTotalRegularPrice(Long basketId) {
+        return queryFactory
+                .select(productBasket.discountedTotalPrice.sum())
+                .from(productBasket)
+                .where(productBasket.basket.basketId.eq(basketId)
+                        .and(productBasket.isRegular.eq(true)))
                 .fetchOne();
     }
 
@@ -70,16 +118,39 @@ public class BasketRepositoryImpl implements CustomBasketRepository {
                 .select(productBasket.discountedTotalPrice)
                 .from(productBasket)
                 .where(productBasket.basket.basketId.eq(basketId)
-                        .and(productBasket.product.productId.eq(productId)))
+                        .and(productBasket.product.productId.eq(productId))
+                        .and(productBasket.isRegular.eq(false)))
+                .fetchOne();
+    }
+
+    @Override
+    public Integer getProductPriceInRegular(Long productId, Long basketId) {
+        return queryFactory
+                .select(productBasket.discountedTotalPrice)
+                .from(productBasket)
+                .where(productBasket.basket.basketId.eq(basketId)
+                        .and(productBasket.product.productId.eq(productId))
+                        .and(productBasket.isRegular.eq(true)))
                 .fetchOne();
     }
 
     @Override
     public List<Long> getProductIdInBasket(Long basketId) {
         return queryFactory
-                .select(product.productId)
+                .select(productBasket.product.productId)
                 .from(productBasket)
-                .where(productBasket.basket.basketId.eq(basketId))
+                .where(productBasket.basket.basketId.eq(basketId)
+                        .and(productBasket.isRegular.eq(false)))
+                .fetch();
+    }
+
+    @Override
+    public List<Long> getProductIdInRegular(Long basketId) {
+        return queryFactory
+                .select(productBasket.product.productId)
+                .from(productBasket)
+                .where(productBasket.basket.basketId.eq(basketId)
+                        .and(productBasket.isRegular.eq(true)))
                 .fetch();
     }
 }

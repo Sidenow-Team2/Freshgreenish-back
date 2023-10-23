@@ -17,6 +17,7 @@ import java.util.List;
 
 import static com.sidenow.freshgreenish.domain.likes.entity.QLikes.likes;
 import static com.sidenow.freshgreenish.domain.product.entity.QProduct.product;
+import static com.sidenow.freshgreenish.domain.purchase.entity.QPurchase.purchase;
 
 @Repository
 public class ProductRepositoryImpl implements CustomProductRepository {
@@ -173,10 +174,21 @@ public class ProductRepositoryImpl implements CustomProductRepository {
                 .fetchOne();
     }
 
+    @Override
+    public String getProductTitle(Long purchaseId) {
+        return queryFactory
+                .select(product.title)
+                .from(product)
+                .leftJoin(purchase).on(purchase.productId.eq(product.productId))
+                .where(purchase.purchaseId.eq(purchaseId))
+                .fetchOne();
+    }
+
     private JPQLQuery<Boolean> isLikes(NumberPath<Long> productId, Long userId) {
         return JPAExpressions.select(
                         new CaseBuilder()
                                 .when(likes.isNotNull()).then(true)
+                                .when(likes.isNull()).then(false)
                                 .otherwise(false)
                 ).from(likes)
                 .where(likes.productId.eq(productId).and(likes.userId.eq(userId)));

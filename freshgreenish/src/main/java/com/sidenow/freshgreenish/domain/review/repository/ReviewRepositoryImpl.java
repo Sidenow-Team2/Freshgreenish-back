@@ -143,6 +143,7 @@ public class ReviewRepositoryImpl implements CustomReviewRepository {
         return JPAExpressions.select(
                         new CaseBuilder()
                                 .when(likes.isNotNull()).then(true)
+                                .when(likes.isNull()).then(false)
                                 .otherwise(false)
                 ).from(likes)
                 .where(likes.productId.eq(productId).and(likes.userId.eq(userId)));

@@ -9,20 +9,14 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ReadyToKakaoPayInfo {
+public class ReadyToKakaoSubInfo {
     private String cid;
+    private String sid;
     private String partner_order_id;
     private String partner_user_id;
     private String item_name;
+    private String item_code;
     private Integer quantity;
     private Integer total_amount;
-    private Integer val_amount;
     private Integer tax_free_amount;
-    private String approval_url;
-    private String fail_url;
-    private String cancel_url;
-
-    public void setCid(String cid) {
-        this.cid = cid;
-    }
 }
