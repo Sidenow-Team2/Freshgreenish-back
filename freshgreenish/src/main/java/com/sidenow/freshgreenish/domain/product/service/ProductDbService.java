@@ -16,6 +16,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -65,7 +67,8 @@ public class ProductDbService {
         return productRepository.getMainPage(pageable);
     }
 
-    public GetProductDetail getProductDetail(Long productId, Long userId) {
+    public GetProductDetail getProductDetail(Long productId, OAuth2User ouath) {
+        Long userId = userDbService.findUserIdByOauth(ouath);
         if (userId != null) return productRepository.getProductDetailUponLogin(productId, userId);
         return productRepository.getProductDetail(productId);
     }
@@ -74,6 +77,19 @@ public class ProductDbService {
         if (sortId == 2) return productRepository.getProductCategoryOrderByPurchaseCount(category, pageable);
         else if (sortId == 3) return productRepository.getProductCategoryOrderByLikeCount(category, pageable);
         else return productRepository.getProductCategoryOrderByProductId(category, pageable);
+    }
+
+    public Page<GetProductCategory> searchProductCategoryForTitle(String title, String category, Integer sortId, Pageable pageable) {
+        if (sortId == 2) return productRepository.searchProductCategoryForTitleOrderByPurchaseCount(split(title), category, pageable);
+        else if (sortId == 3) return productRepository.searchProductCategoryForTitleOrderByLikeCount(split(title), category, pageable);
+        else return productRepository.searchProductCategoryForTitleOrderByProductId(split(title), category, pageable);
+    }
+
+    private List<String> split(String title) {
+        List<String> titles = new ArrayList<>();
+        String[] list = title.split(" ");
+        Collections.addAll(titles, list);
+        return titles;
     }
 
     public Integer getPrice(Long productId) {

@@ -29,6 +29,7 @@ public class User extends Auditable {
     @Setter
     private Integer saved_money;
 
+    @Setter
     private Boolean isJoinRegular;
 
     @Column(length = 20)

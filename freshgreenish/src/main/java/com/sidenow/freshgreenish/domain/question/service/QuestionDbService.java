@@ -33,11 +33,11 @@ public class QuestionDbService {
         }
     }
 
-    public Page<GetQuestionOnMyPage> getQuestionInMyPage(Long userId, Pageable pageable) {
+    public Page<GetQuestionOnMyPage> getQuestionOnMyPage(Long userId, Pageable pageable) {
         return questionRepository.getQuestionOnMyPage(userId, pageable);
     }
 
-    public Page<GetQuestionOnQnAPage> getQuestionInQnAPage(Pageable pageable) {
+    public Page<GetQuestionOnQnAPage> getQuestionOnQnAPage(Pageable pageable) {
         return questionRepository.getQuestionOnQnAPage(pageable);
     }
 
