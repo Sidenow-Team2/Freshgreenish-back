@@ -51,6 +51,8 @@ public class AddressService {
             mainAdressDTO.setAddressNickname(defaultAddress.getAddressNickname());
             mainAdressDTO.setAddressMain(defaultAddress.getAddressMain());
             mainAdressDTO.setIsDefaultAddress(defaultAddress.getIsDefaultAddress());
+            mainAdressDTO.setRecipientName(defaultAddress.getRecipientName());
+            mainAdressDTO.setPhoneNumber(defaultAddress.getPhoneNumber());
 
             Addresses.add(mainAdressDTO);
         }
@@ -65,6 +67,8 @@ public class AddressService {
                 newAdressDTO.setAddressNickname(a.getAddressNickname());
                 newAdressDTO.setAddressMain(a.getAddressMain());
                 newAdressDTO.setIsDefaultAddress(a.getIsDefaultAddress());
+                newAdressDTO.setRecipientName(defaultAddress.getRecipientName());
+                newAdressDTO.setPhoneNumber(defaultAddress.getPhoneNumber());
 
                 Addresses.add(newAdressDTO);
             }
