@@ -1,11 +1,13 @@
 package com.sidenow.freshgreenish.domain.user.controller;
 
 import com.sidenow.freshgreenish.domain.address.dto.PostAddressDTO;
+import com.sidenow.freshgreenish.domain.user.dto.GetMyInfo;
 import com.sidenow.freshgreenish.domain.user.service.MyInfoService;
 import com.sidenow.freshgreenish.global.config.mail.controller.MailController;
 import com.sidenow.freshgreenish.global.exception.BusinessLogicException;
 import com.sidenow.freshgreenish.global.exception.ExceptionCode;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.bind.annotation.*;
@@ -22,8 +24,9 @@ public class MyInfoController {
     boolean isEmailAuthenticatedUser = false;
 
     @GetMapping("/mypage")
-    public void GetUserInfo(@AuthenticationPrincipal OAuth2User oauth){
-            myInfoService.getUserInfo(oauth);
+    public ResponseEntity GetUserInfo(@AuthenticationPrincipal OAuth2User oauth){
+        GetMyInfo infodto = myInfoService.getUserInfo(oauth);
+        return ResponseEntity.ok(infodto);
     }
 
     @PostMapping("/mypage/verification")
