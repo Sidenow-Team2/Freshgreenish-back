@@ -59,7 +59,7 @@ public class QuestionController {
         return ResponseEntity.ok().body(new SingleResponseDto<>(question));
     }
 
-    @PatchMapping("/{questionId}/deleted")
+    @PatchMapping("/{questionId}/delete")
     public ResponseEntity deleteQuestion(@PathVariable("questionId") Long questionId,
                                          @AuthenticationPrincipal OAuth2User oauth) {
         questionService.deleteQuestion(oauth, questionId);
