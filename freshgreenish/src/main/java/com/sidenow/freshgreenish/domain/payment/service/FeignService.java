@@ -29,6 +29,9 @@ public class FeignService {
     @Value("${kakao.pay.cid}")
     private String cid;
 
+    @Value("${kakao.pay.regularCid}")
+    private String regularCid;
+
     @Value("${kakao.pay.taxfree}")
     private Integer taxFreeAmount;
 
@@ -69,9 +72,8 @@ public class FeignService {
     }
 
     public ReadyToKakaoPayInfo setReadyParams(String requestUrl, Long purchaseId, Integer totalCost,
-                                              Long userId, String orderName, Integer totalCount) {
-        return ReadyToKakaoPayInfo.builder()
-                .cid(cid)
+                                              Long userId, String orderName, Integer totalCount, Boolean isRegular) {
+        ReadyToKakaoPayInfo readyToKakaoPayInfo = ReadyToKakaoPayInfo.builder()
                 .approval_url(requestUrl + paymentProcessUri + "/" + purchaseId + "/kakao/success")
                 .cancel_url(requestUrl + paymentProcessUri + "/" + purchaseId + "/kakao/cancellation")
                 .fail_url(requestUrl + paymentProcessUri + "/" + purchaseId + "/kakao/failure")
@@ -81,6 +83,27 @@ public class FeignService {
                 .quantity(totalCount)
                 .total_amount(totalCost)
                 .val_amount(totalCost)
+                .tax_free_amount(taxFreeAmount)
+                .build();
+
+        if (isRegular.equals(true)) {
+            readyToKakaoPayInfo.setCid(regularCid);
+        } else readyToKakaoPayInfo.setCid(cid);
+
+        return readyToKakaoPayInfo;
+    }
+
+    public ReadyToKakaoSubInfo setReadySubParams(String sid, Long purchaseId, Integer totalCost, Long userId,
+                                                 String orderName, String productNumber, Integer totalCount) {
+        return ReadyToKakaoSubInfo.builder()
+                .cid(cid)
+                .sid(sid)
+                .partner_order_id(purchaseId + "/" + userId + "/" + orderName)
+                .partner_user_id(userId.toString())
+                .item_name(orderName)
+                .item_code(productNumber)
+                .quantity(totalCount)
+                .total_amount(totalCost)
                 .tax_free_amount(taxFreeAmount)
                 .build();
     }
@@ -102,6 +125,21 @@ public class FeignService {
                                              ReadyToKakaoPayInfo params) {
         try {
             return kakaoFeignClient.readyForPayment(
+                    headers.getAdminKey(),
+                    headers.getAccept(),
+                    headers.getContentType(),
+                    params
+            );
+        } catch (RestClientException e) {
+            log.error(e.getMessage());
+        }
+        return null;
+    }
+
+    public KakaoSubReadyInfo getSubReadyInfo(KakaoPayHeader headers,
+                                             ReadyToKakaoSubInfo params) {
+        try {
+            return kakaoFeignClient.readyForSubscription(
                     headers.getAdminKey(),
                     headers.getAccept(),
                     headers.getContentType(),
@@ -161,6 +199,29 @@ public class FeignService {
                 .amount(amount)
                 .orderId(orderId)
                 .build();
+    }
+
+    public RequestForKakaoRegularPayCancel setRequestCancelParams(String sid, String cid) {
+        return RequestForKakaoRegularPayCancel.builder()
+                .sid(sid)
+                .cid(cid)
+                .build();
+    }
+
+    public KakaoPayRegularCancelInfo getCancelKakaoPayRegularResponse(KakaoPayHeader headers,
+                                                                      RequestForKakaoRegularPayCancel params) {
+        try {
+            return kakaoFeignClient
+                    .cancelForSubscription(
+                            headers.getAdminKey(),
+                            headers.getAccept(),
+                            headers.getContentType(),
+                            params
+                    );
+        } catch (RestClientException e) {
+            log.error(e.getMessage());
+        }
+        return null;
     }
 }
 

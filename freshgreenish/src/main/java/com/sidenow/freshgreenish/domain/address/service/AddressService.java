@@ -4,9 +4,12 @@ import com.sidenow.freshgreenish.domain.address.dto.GetAddressDTO;
 import com.sidenow.freshgreenish.domain.address.dto.PostAddressDTO;
 import com.sidenow.freshgreenish.domain.address.entity.Address;
 import com.sidenow.freshgreenish.domain.address.repository.AddressRepository;
-import com.sidenow.freshgreenish.domain.product.entity.Product;
+import com.sidenow.freshgreenish.domain.purchase.dto.AddressInfo;
+import com.sidenow.freshgreenish.domain.purchase.entity.Purchase;
+import com.sidenow.freshgreenish.domain.purchase.service.PurchaseDbService;
 import com.sidenow.freshgreenish.domain.user.entity.User;
 import com.sidenow.freshgreenish.domain.user.repository.UserRepository;
+import com.sidenow.freshgreenish.domain.user.service.UserDbService;
 import com.sidenow.freshgreenish.global.exception.BusinessLogicException;
 import com.sidenow.freshgreenish.global.exception.ExceptionCode;
 import jakarta.transaction.Transactional;
@@ -23,7 +26,9 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class AddressService {
-
+    private final AddressDbService addressDbService;
+    private final UserDbService userDbService;
+    private final PurchaseDbService purchaseDbService;
     private final AddressRepository addressRepository;
     private final UserRepository userRepository;
     @Transactional
@@ -167,4 +172,51 @@ public class AddressService {
         addressRepository.save(address);
     }
 
+    @Transactional
+    public void addAddressForPurchase(OAuth2User oauth, Long purchaseId, PostAddressDTO post) {
+        User findUser = userDbService.findUserByEmail(oauth);
+        Address address = Address.builder()
+                .user(findUser)
+                .postalCode(post.getPostalCode())
+                .addressMain(post.getAddressMain())
+                .addressDetail(post.getAddressDetail())
+                .addressNickname(post.getAddressNickname())
+                .isInMyPage(post.getIsDefaultAddress())
+                .isDefaultAddress(post.getIsDefaultAddress())
+                .recipientName(post.getRecipientName())
+                .phoneNumber(post.getPhoneNumber())
+                .build();
+
+        addressDbService.saveAddress(address);
+
+        Purchase findPurchase = purchaseDbService.ifExistsReturnPurchase(purchaseId);
+        findPurchase.setAddressId(address.getAddressId());
+
+        purchaseDbService.savePurchase(findPurchase);
+    }
+
+    @Transactional
+    public void addAddressIdForPurchase(OAuth2User oauth, Long purchaseId, Long addressId) {
+        Long userId = userDbService.findUserIdByOauth(oauth);
+        Address findAddress = addressDbService.ifExistsReturnAddress(addressId);
+        Purchase findPurchase = purchaseDbService.ifExistsReturnPurchase(purchaseId);
+
+        if (!userId.equals(findAddress.getUser().getUserId())) {
+            throw new BusinessLogicException(ExceptionCode.INVALID_ACCESS);
+        }
+
+        findPurchase.setAddressId(findAddress.getAddressId());
+        purchaseDbService.savePurchase(findPurchase);
+    }
+
+    public AddressInfo getAddressForPurchase(OAuth2User oauth, Long purchaseId) {
+        Long userId = userDbService.findUserIdByOauth(oauth);
+        Purchase findPurchase = purchaseDbService.ifExistsReturnPurchase(purchaseId);
+
+        if (!userId.equals(findPurchase.getUserId())) {
+            throw new BusinessLogicException(ExceptionCode.INVALID_ACCESS);
+        }
+
+        return purchaseDbService.getAddressInfo(findPurchase.getAddressId());
+    }
 }

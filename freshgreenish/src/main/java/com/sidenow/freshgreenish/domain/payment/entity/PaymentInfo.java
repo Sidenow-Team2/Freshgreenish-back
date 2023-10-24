@@ -7,6 +7,8 @@ import com.sidenow.freshgreenish.domain.purchase.entity.Purchase;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -16,12 +18,18 @@ public class PaymentInfo {
     @Column(name = "PAYMENT_ID")
     private Long paymentId;
 
+    @Setter
+    @Column(updatable = false)
+    private LocalDateTime paymentDate;
+    @Setter
+    private LocalDateTime deliveryDate;
     private Integer quantity = 0;
 
     /* ---------- 카카오 ---------- */
 
     private String cid;
     private String tid;
+    private String sid;
     private String partnerOrderId;
     private String partnerUserId;
     private String itemName;
@@ -51,8 +59,9 @@ public class PaymentInfo {
     private Purchase purchase;
 
     @Builder
-    public PaymentInfo(Purchase purchase) {
+    public PaymentInfo(Purchase purchase, String orderName) {
         this.purchase = purchase;
+        this.orderName = orderName;
     }
 
     public void setPurchase(Purchase purchase) {
@@ -61,6 +70,9 @@ public class PaymentInfo {
 
     public void setPaymentKey(String paymentKey) {
         this.paymentKey = paymentKey;
+    }
+    public void setSid(String sid) {
+        this.sid = sid;
     }
 
     public void setTossPaymentInfo(ReadyToTossPayInfo body) {

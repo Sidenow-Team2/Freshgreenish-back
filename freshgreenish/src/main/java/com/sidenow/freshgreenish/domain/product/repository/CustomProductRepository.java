@@ -19,4 +19,6 @@ public interface CustomProductRepository {
     Integer getPrice(Long productId);
     Integer getDiscountPrice(Long productId);
 
+    String getProductTitle(Long purchaseId);
+
 }
