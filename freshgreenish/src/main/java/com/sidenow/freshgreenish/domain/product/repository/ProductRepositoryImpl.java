@@ -1,5 +1,6 @@
 package com.sidenow.freshgreenish.domain.product.repository;
 
+import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.CaseBuilder;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.core.types.dsl.NumberPath;
@@ -148,6 +149,81 @@ public class ProductRepositoryImpl implements CustomProductRepository {
     }
 
     @Override
+    public Page<GetProductCategory> searchProductCategoryForTitleOrderByProductId(List<String> titles, String category, Pageable pageable) {
+        List<GetProductCategory> results = queryFactory
+                .select(new QGetProductCategory(
+                        product.productId,
+                        product.title,
+                        product.price,
+                        product.discountRate,
+                        product.discountPrice,
+                        product.productDetailImage
+                )).from(product)
+                .distinct()
+                .where(searchTitleArray(titles, product.title.contains(titles.get(0)))
+                        .or(product.origin.eq(category))
+                        .or(product.storageMethod.eq(category))
+                        .and(product.deleted.eq(false)))
+                .orderBy(product.productId.desc())
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+
+        long total = results.size();
+        return new PageImpl<>(results, pageable, total);
+    }
+
+    @Override
+    public Page<GetProductCategory> searchProductCategoryForTitleOrderByPurchaseCount(List<String> titles, String category, Pageable pageable) {
+        List<GetProductCategory> results = queryFactory
+                .select(new QGetProductCategory(
+                        product.productId,
+                        product.title,
+                        product.price,
+                        product.discountRate,
+                        product.discountPrice,
+                        product.productDetailImage
+                )).from(product)
+                .distinct()
+                .where(searchTitleArray(titles, product.title.contains(titles.get(0)))
+                        .or(product.origin.eq(category))
+                        .or(product.storageMethod.eq(category))
+                        .and(product.deleted.eq(false)))
+                .orderBy(product.purchaseCount.desc())
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+
+        long total = results.size();
+        return new PageImpl<>(results, pageable, total);
+    }
+
+    @Override
+    public Page<GetProductCategory> searchProductCategoryForTitleOrderByLikeCount(List<String> titles, String category, Pageable pageable) {
+        List<GetProductCategory> results = queryFactory
+                .select(new QGetProductCategory(
+                        product.productId,
+                        product.title,
+                        product.price,
+                        product.discountRate,
+                        product.discountPrice,
+                        product.productDetailImage
+                )).from(product)
+                .distinct()
+                .where(searchTitleArray(titles, product.title.contains(titles.get(0)))
+                        .or(product.origin.eq(category))
+                        .or(product.storageMethod.eq(category))
+                        .and(product.deleted.eq(false)))
+                .orderBy(product.likeCount.desc())
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+
+        long total = results.size();
+        return new PageImpl<>(results, pageable, total);
+    }
+
+    @Override
     public Boolean isDeleted(Long productId) {
         return queryFactory
                 .select(product.deleted)
@@ -192,5 +268,12 @@ public class ProductRepositoryImpl implements CustomProductRepository {
                                 .otherwise(false)
                 ).from(likes)
                 .where(likes.productId.eq(productId).and(likes.userId.eq(userId)));
+    }
+
+    private BooleanExpression searchTitleArray(List<String> titles, BooleanExpression title) {
+        for (int i = 1; i < titles.size(); i++) {
+            title = title.or(product.title.contains(titles.get(i)));
+        }
+        return title;
     }
 }

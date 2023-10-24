@@ -60,6 +60,9 @@ public class Product extends Auditable {
     @Setter
     @Column(length = 2000)
     private String productDetailImage; //상세정보이미지주소
+    @Setter
+    @Column(length = 2000)
+    private String productDetailImageName; //상세정보이미지명
 
     @Setter
     private Integer likeCount = 0; //좋아요수
@@ -83,7 +86,8 @@ public class Product extends Auditable {
     public Product(Long productId, String title, String subTitle, Integer price, Integer discountPrice, String detail,
                    String deliveryType, String seller, String packageType, String unit, String capacity, String origin,
                    String notification, String storageMethod, String brand, String weight, Integer discountRate,
-                   String variety, String harvestSeason, Boolean recommendation, Boolean subscription, String productDetailImage) {
+                   String variety, String harvestSeason, Boolean recommendation, Boolean subscription,
+                   String productDetailImage, String productDetailImageName) {
         this.productId = productId;
         this.title = title;
         this.subTitle = subTitle;
@@ -110,6 +114,7 @@ public class Product extends Auditable {
         this.subscription = subscription;
 
         this.productDetailImage = productDetailImage;
+        this.productDetailImageName = productDetailImageName;
     }
 
     public void addProductImage(ProductImage productImage) {

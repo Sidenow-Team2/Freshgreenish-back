@@ -1,8 +1,5 @@
 package com.sidenow.freshgreenish.domain.product.controller;
 
-
-//import jakarta.validation.Valid;
-
 import com.sidenow.freshgreenish.domain.dto.MultiResponseDto;
 import com.sidenow.freshgreenish.domain.dto.SingleResponseDto;
 import com.sidenow.freshgreenish.domain.product.dto.EditProduct;
@@ -36,9 +33,9 @@ public class ProductController {
                                       @RequestPart(value = "productDetailImage") MultipartFile productDetailImage,
                                       @AuthenticationPrincipal OAuth2User oauth) {
         productService.postProduct(post, productImage, productDetailImage, oauth);
+//        productService.postProductS3(post, productImage, productDetailImage, oauth);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
-
     @PostMapping("/master/product/{productId}")
     public ResponseEntity editProduct(@PathVariable("productId") Long productId,
                                       @RequestPart(value = "data") @Valid EditProduct edit,
@@ -46,6 +43,7 @@ public class ProductController {
                                       @RequestPart(required = false, value = "productDetailImage") MultipartFile productDetailImage,
                                       @AuthenticationPrincipal OAuth2User oauth) {
         productService.editProduct(productId, edit, productImage, productDetailImage, oauth);
+//        productService.editProductS3(productId, edit, productImage, productDetailImage, oauth);
         return ResponseEntity.ok().build();
     }
 
@@ -56,9 +54,9 @@ public class ProductController {
     }
 
     @GetMapping("/product/{productId}")
-    public ResponseEntity getProductDetail(@PathVariable("productId") Long productId) {
-        Long userId = 1L; // TODO : 추후 시큐리티 적용 후 수정 예정
-        GetProductDetail product = productDbService.getProductDetail(productId, userId);
+    public ResponseEntity getProductDetail(@PathVariable("productId") Long productId,
+                                           @AuthenticationPrincipal OAuth2User oauth) {
+        GetProductDetail product = productDbService.getProductDetail(productId, oauth);
         return ResponseEntity.ok().body(new SingleResponseDto<>(product));
     }
 
@@ -84,9 +82,12 @@ public class ProductController {
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/search/{title:.+}")
+    @GetMapping("/product/{category}/sort/{sortId}/search/{title:.+}")
     public ResponseEntity searchProductTitle(@PathVariable("title") String title,
+                                             @PathVariable("category") String category,
+                                             @PathVariable("sortId") Integer sortId,
                                              Pageable pageable) {
-        return ResponseEntity.ok().build();
+        Page<GetProductCategory> product = productDbService.searchProductCategoryForTitle(title, category, sortId, pageable);
+        return ResponseEntity.ok().body(new MultiResponseDto<>(product));
     }
 }

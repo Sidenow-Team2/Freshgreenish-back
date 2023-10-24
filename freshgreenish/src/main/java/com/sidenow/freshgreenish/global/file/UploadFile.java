@@ -6,8 +6,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
-@NoArgsConstructor
 @Setter
+@NoArgsConstructor
 public class UploadFile {
     private String originFileName;
     private String fileName;

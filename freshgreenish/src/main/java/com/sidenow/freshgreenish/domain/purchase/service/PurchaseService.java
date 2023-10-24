@@ -11,6 +11,7 @@ import com.sidenow.freshgreenish.domain.purchase.dto.*;
 import com.sidenow.freshgreenish.domain.purchase.entity.ProductPurchase;
 import com.sidenow.freshgreenish.domain.purchase.entity.Purchase;
 import com.sidenow.freshgreenish.domain.purchase.entity.PurchaseStatus;
+import com.sidenow.freshgreenish.domain.purchase.entity.SubscriptionStatus;
 import com.sidenow.freshgreenish.domain.user.entity.User;
 import com.sidenow.freshgreenish.domain.user.service.UserDbService;
 import com.sidenow.freshgreenish.global.exception.BusinessLogicException;
@@ -54,6 +55,7 @@ public class PurchaseService {
                 .build();
 
         purchase.setStatus(PurchaseStatus.PAY_IN_PROGRESS);
+        purchase.setSubStatus(SubscriptionStatus.NOT_USE_SUBSCRIPTION);
 
         Purchase findPurchase = purchaseDbService.saveAndReturnPurchase(purchase);
         findPurchase.setPurchaseNumber(createPurchaseNumber(findPurchase.getCreatedAt()));
@@ -96,6 +98,7 @@ public class PurchaseService {
                 .build();
 
         purchase.setStatus(PurchaseStatus.PAY_IN_PROGRESS);
+        purchase.setSubStatus(SubscriptionStatus.NOT_USE_SUBSCRIPTION);
 
         Purchase findPurchase = purchaseDbService.saveAndReturnPurchase(purchase);
 
@@ -131,6 +134,7 @@ public class PurchaseService {
                 .build();
 
         purchase.setStatus(PurchaseStatus.PAY_IN_PROGRESS);
+        purchase.setSubStatus(SubscriptionStatus.DURING_SUBSCRIPTION);
 
         Purchase findPurchase = purchaseDbService.saveAndReturnPurchase(purchase);
 
@@ -167,6 +171,7 @@ public class PurchaseService {
                 .build();
 
         purchase.setStatus(PurchaseStatus.PAY_IN_PROGRESS);
+        purchase.setSubStatus(SubscriptionStatus.NOT_USE_SUBSCRIPTION);
 
         Purchase findPurchase = purchaseDbService.saveAndReturnPurchase(purchase);
         findPurchase.setPurchaseNumber(createPurchaseNumber(findPurchase.getCreatedAt()));
@@ -201,6 +206,7 @@ public class PurchaseService {
                 .build();
 
         purchase.setStatus(PurchaseStatus.PAY_IN_PROGRESS);
+        purchase.setSubStatus(SubscriptionStatus.DURING_SUBSCRIPTION);
 
         Purchase findPurchase = purchaseDbService.saveAndReturnPurchase(purchase);
         findPurchase.setPurchaseNumber(createPurchaseNumber(findPurchase.getCreatedAt()));
@@ -351,6 +357,21 @@ public class PurchaseService {
         Long userId = userDbService.findUserIdByOauth(oauth);
         return purchaseDbService.getSubscriptionOnMyPage(userId, pageable);
     }
+
+    public CheckSubscription getSubscriptionInfo(OAuth2User oauth) {
+        Long userId = userDbService.findUserIdByOauth(oauth);
+        if (purchaseDbService.getSubscriptionCount(userId) > 0) {
+            return CheckSubscription.builder()
+                    .regularPurchaseCount(purchaseDbService.getSubscriptionCount(userId))
+                    .isExists(true)
+                    .build();
+        } else return CheckSubscription.builder()
+                        .regularPurchaseCount(purchaseDbService.getSubscriptionCount(userId))
+                        .isExists(false)
+                        .build();
+    }
+
+
 
     private String createPurchaseNumber(LocalDateTime createdAt) {
         String createDay = createdAt.toString();

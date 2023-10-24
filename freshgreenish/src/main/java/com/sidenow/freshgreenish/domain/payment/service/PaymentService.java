@@ -15,6 +15,7 @@ import com.sidenow.freshgreenish.domain.payment.toss.*;
 import com.sidenow.freshgreenish.domain.product.entity.Product;
 import com.sidenow.freshgreenish.domain.product.service.ProductDbService;
 import com.sidenow.freshgreenish.domain.purchase.entity.Purchase;
+import com.sidenow.freshgreenish.domain.purchase.entity.SubscriptionStatus;
 import com.sidenow.freshgreenish.domain.purchase.service.PurchaseDbService;
 import com.sidenow.freshgreenish.domain.user.entity.User;
 import com.sidenow.freshgreenish.domain.user.service.UserDbService;
@@ -91,7 +92,11 @@ public class PaymentService {
     public Message getKaKaoPayUrl(Long purchaseId) {
         Purchase findPurchase = purchaseDbService.ifExistsReturnPurchase(purchaseId);
 
-        if (!findPurchase.getPurchaseStatus().equals(PAY_IN_PROGRESS)) {
+        if (findPurchase.getIsRegularDelivery().equals(false)
+                && !findPurchase.getPurchaseStatus().equals(PAY_IN_PROGRESS)) {
+            throw new BusinessLogicException(INVALID_ACCESS);
+        } else if (findPurchase.getIsRegularDelivery().equals(true)
+                && !findPurchase.getSubscriptionStatus().equals(SubscriptionStatus.DURING_SUBSCRIPTION)) {
             throw new BusinessLogicException(INVALID_ACCESS);
         }
 
@@ -120,7 +125,7 @@ public class PaymentService {
         PaymentInfo findPayment = paymentDbService.ifExistsReturnPaymentInfo(purchaseId);
         String productTitle = productDbService.getProductTitle(purchaseId);
 
-        if (!findPurchase.getPurchaseStatus().equals(PAY_IN_PROGRESS)) {
+        if (!findPurchase.getPurchaseStatus().equals(SubscriptionStatus.DURING_SUBSCRIPTION)) {
             throw new BusinessLogicException(INVALID_ACCESS);
         }
 
@@ -242,6 +247,13 @@ public class PaymentService {
             findDelivery.setDeliveryDate(date.plusDays(1)); // 수정 필요
 
             deliveryDbService.saveDelivery(findDelivery);
+
+            newPurchase.setSubStatus(SubscriptionStatus.DURING_SUBSCRIPTION);
+            purchaseDbService.savePurchase(newPurchase);
+
+            User findUser = userDbService.ifExistsReturnUser(findPurchase.getUserId());
+            findUser.setIsJoinRegular(true);
+            userDbService.saveUser(findUser);
         }
 
         return Message.builder()
@@ -302,6 +314,10 @@ public class PaymentService {
             deliveryDbService.saveDelivery(findDelivery);
         }
 
+        User findUser = userDbService.ifExistsReturnUser(findPurchase.getUserId());
+        findUser.setIsJoinRegular(true);
+        userDbService.saveUser(findUser);
+
         return Message.builder()
                 .data(kakaoPaySuccessInfo)
                 .message(INFO_URI_MSG)
@@ -320,6 +336,9 @@ public class PaymentService {
                 feignService.getCancelKakaoPayRegularResponse(headers, params);
 
         cancelInfo.setOrderStatus(REFUND_APPROVED);
+
+        findPurchase.setSubStatus(SubscriptionStatus.END_OF_SUBSCRIPTION);
+        purchaseDbService.savePurchase(findPurchase);
 
         return Message.builder()
                 .data(cancelInfo)

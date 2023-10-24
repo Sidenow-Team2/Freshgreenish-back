@@ -1,6 +1,7 @@
 package com.sidenow.freshgreenish.domain.purchase.controller;
 
 import com.sidenow.freshgreenish.domain.dto.MultiResponseDto;
+import com.sidenow.freshgreenish.domain.dto.SingleResponseDto;
 import com.sidenow.freshgreenish.domain.purchase.dto.*;
 import com.sidenow.freshgreenish.domain.purchase.service.PurchaseService;
 import jakarta.validation.Valid;
@@ -125,9 +126,16 @@ public class PurchaseController {
 
     @GetMapping("/purchase/{purchaseId}")
     public ResponseEntity getPurchaseDetail(@PathVariable("purchaseId") Long purchaseId,
-                                              @AuthenticationPrincipal OAuth2User oauth) {
+                                            @AuthenticationPrincipal OAuth2User oauth) {
         GetPurchaseDetail purchase = purchaseService.getPurchaseDetail(purchaseId, oauth);
         return ResponseEntity.ok()
                 .body(new WrapPurchaseInfo<>(purchase.getOrderLists(), purchase.getAddressInfo(), purchase.getPriceInfo()));
+    }
+
+    // Test 및 확인 용 API
+    @GetMapping("/purchase/subscription/check")
+    public ResponseEntity getSubscriptionCheck(@AuthenticationPrincipal OAuth2User oauth) {
+        CheckSubscription check =  purchaseService.getSubscriptionInfo(oauth);
+        return ResponseEntity.ok().body(new SingleResponseDto<>(check));
     }
 }
