@@ -33,4 +33,11 @@ public class UserDbService {
         return userRepository.findByEmail(userEmail)
                 .orElseThrow(NullPointerException::new);
     }
+
+    public Long findUserIdByOauth(OAuth2User oauth) {
+        String userEmail = oauth.getAttribute("email");
+        User findUser = userRepository.findByEmail(userEmail)
+                .orElseThrow(NullPointerException::new);
+        return findUser.getUserId();
+    }
 }

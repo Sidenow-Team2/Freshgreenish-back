@@ -39,6 +39,9 @@ public class BasketDbService {
                 .totalBasketPrice(0)
                 .discountedBasketPrice(0)
                 .discountedBasketTotalPrice(0)
+                .totalRegularPrice(0)
+                .discountedRegularTotalPrice(0)
+                .discountedRegularPrice(0)
                 .build();
     }
 
@@ -57,28 +60,57 @@ public class BasketDbService {
                 .orElseThrow(() -> new BusinessLogicException(ExceptionCode.PRODUCT_BASKET_NOT_FOUND));
     }
 
+    public ProductBasket ifExistsReturnProductBasketByIsRegular(Long productId, Long basketId, Boolean isRegular) {
+        return productBasketRepository.findByProductProductIdAndBasketBasketIdAndIsRegular(productId, basketId, isRegular)
+                .orElseThrow(() -> new BusinessLogicException(ExceptionCode.PRODUCT_BASKET_NOT_FOUND));
+    }
+
     public Optional<ProductBasket> ifExistFindByProductIdAndBasketId(Long productId, Long basketId) {
         return productBasketRepository.findByProductProductIdAndBasketBasketId(productId, basketId);
+    }
+
+    public Optional<ProductBasket> ifExistFindByProductIdAndBasketIdAndIdRegular(Long productId, Long basketId, Boolean isRegular) {
+        return productBasketRepository.findByProductProductIdAndBasketBasketIdAndIsRegular(productId, basketId, isRegular);
     }
 
     public Page<GetBasket> getBasketList(Long userId, Pageable pageable) {
         return basketRepository.getBasketList(userId, pageable);
     }
 
+    public Page<GetBasket> getRegularList(Long userId, Pageable pageable) {
+        return basketRepository.getRegularList(userId, pageable);
+    }
+
     public List<Long> getProductIdInBasket(Long basketId) {
         return basketRepository.getProductIdInBasket(basketId);
+    }
+
+    public List<Long> getProductIdInRegular(Long basketId) {
+        return basketRepository.getProductIdInRegular(basketId);
     }
 
     public Integer getTotalBasketPrice(Long basketId) {
         return basketRepository.getTotalBasketPrice(basketId);
     }
 
+    public Integer getTotalRegularPrice(Long basketId) {
+        return basketRepository.getTotalRegularPrice(basketId);
+    }
+
     public Integer getDiscountedTotalBasketPrice(Long basketId) {
         return basketRepository.getDiscountedTotalBasketPrice(basketId);
     }
 
+    public Integer getDiscountedTotalRegularPrice(Long basketId) {
+        return basketRepository.getDiscountedTotalRegularPrice(basketId);
+    }
+
     public Integer getProductPriceInBasket(Long productId, Long basketId) {
         return basketRepository.getProductPriceInBasket(productId, basketId);
+    }
+
+    public Integer getProductPriceInRegular(Long productId, Long basketId) {
+        return basketRepository.getProductPriceInRegular(productId, basketId);
     }
 
     public void deleteAllByProductBasketId(List<Long> productBasketId) {

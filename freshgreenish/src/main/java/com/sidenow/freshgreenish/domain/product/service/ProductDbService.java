@@ -87,4 +87,8 @@ public class ProductDbService {
     public User findUser(OAuth2User oauth) {
         return userDbService.findUserByEmail(oauth);
     }
+
+    public String getProductTitle(Long purchaseId) {
+        return productRepository.getProductTitle(purchaseId);
+    }
 }

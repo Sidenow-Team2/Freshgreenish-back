@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 public class AddressInfo {
+    private Long addressId;
     private Integer postalCode;
     private String addressMain;
     private String addressDetail;
@@ -21,6 +22,7 @@ public class AddressInfo {
     @Builder
     @QueryProjection
     public AddressInfo(Address address) {
+        this.addressId = address.getAddressId();
         this.postalCode = address.getPostalCode();
         this.addressMain = address.getAddressMain();
         this.addressDetail = address.getAddressDetail();

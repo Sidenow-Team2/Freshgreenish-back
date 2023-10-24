@@ -7,21 +7,17 @@ import lombok.*;
 
 @Entity
 @Getter
+@Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ProductBasket{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "PRODUCT_BASKET_ID")
     private Long productBasketId;
-
-    @Setter
     private Integer count;
-
-    @Setter
     private Integer totalPrice = 0;
-
-    @Setter
     private Integer discountedTotalPrice = 0;
+    private Boolean isRegular = false;
 
     @JsonBackReference
     @ManyToOne(fetch = FetchType.LAZY)
@@ -34,11 +30,13 @@ public class ProductBasket{
     private Basket basket;
 
     @Builder
-    public ProductBasket(Long productBasketId, Integer count, Integer totalPrice, Integer discountedTotalPrice) {
+    public ProductBasket(Long productBasketId, Integer count, Integer totalPrice,
+                         Integer discountedTotalPrice, Boolean isRegular) {
         this.productBasketId = productBasketId;
         this.count = count;
         this.totalPrice = totalPrice;
         this.discountedTotalPrice = discountedTotalPrice;
+        this.isRegular = isRegular;
     }
 
     public void addProduct(Product product) {

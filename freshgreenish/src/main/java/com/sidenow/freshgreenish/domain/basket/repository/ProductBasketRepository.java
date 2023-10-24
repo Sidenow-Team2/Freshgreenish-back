@@ -7,4 +7,5 @@ import java.util.Optional;
 
 public interface ProductBasketRepository extends JpaRepository<ProductBasket, Long> {
     Optional<ProductBasket> findByProductProductIdAndBasketBasketId(Long productId, Long basketId);
+    Optional<ProductBasket> findByProductProductIdAndBasketBasketIdAndIsRegular(Long productId, Long basketId, Boolean isRegular);
 }

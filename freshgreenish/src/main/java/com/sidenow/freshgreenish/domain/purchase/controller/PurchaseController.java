@@ -60,6 +60,30 @@ public class PurchaseController {
                 .body(new WrapPurchaseInfo<>(purchase.getOrderLists(), purchase.getAddressInfo(), purchase.getPriceInfo()));
     }
 
+    // 장바구니 - 선택 정기 결제
+    @PostMapping("/purchase/subscription/basket/select")
+    public ResponseEntity createRegularPurchaseSelect(@RequestBody @Valid PostSelectPurchase post,
+                                                      @AuthenticationPrincipal OAuth2User oauth) {
+        purchaseService.createRegularPurchaseSelect(oauth, post);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+    // 장바구니 - 전체 정기 결제
+    @PostMapping("/purchase/subscription/basket/all")
+    public ResponseEntity createRegularPurchaseAll(@AuthenticationPrincipal OAuth2User oauth) {
+        purchaseService.createRegularPurchaseAll(oauth);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+    // 장바구니 - 정기 결제 요청 페이지
+    @GetMapping("/purchase/{purchaseId}/subscription/basket/payment")
+    public ResponseEntity getRegularPurchase(@PathVariable("purchaseId") Long purchaseId,
+                                             @AuthenticationPrincipal OAuth2User oauth) {
+        GetPurchaseInfo purchase = purchaseService.getRegularPurchaseInfo(purchaseId, oauth);
+        return ResponseEntity.ok()
+                .body(new WrapPurchaseInfo<>(purchase.getOrderLists(), purchase.getAddressInfo(), purchase.getPriceInfo()));
+    }
+
     @PatchMapping("/purchase/{purchaseId}")
     public ResponseEntity usedPointInPurchase(@PathVariable("purchaseId") Long purchaseId,
                                               @RequestBody @Valid PostUsePoint post,
@@ -75,6 +99,15 @@ public class PurchaseController {
         return ResponseEntity.ok().build();
     }
 
+    @PatchMapping("/master/purchase/{purchaseId}/{statusId}")
+    public ResponseEntity masterChangePurchaseStatus(@PathVariable("purchaseId") Long purchaseId,
+                                                     @PathVariable("statusId") Integer statusId,
+                                                     @AuthenticationPrincipal OAuth2User oauth) {
+        purchaseService.masterChangePurchaseStatus(purchaseId, oauth, statusId);
+        return ResponseEntity.ok().build();
+    }
+
+    // 마이페이지 주문 내역
     @GetMapping("/purchase")
     public ResponseEntity getPurchaseOnMyPage(@AuthenticationPrincipal OAuth2User oauth,
                                               Pageable pageable) {
@@ -82,10 +115,18 @@ public class PurchaseController {
         return ResponseEntity.ok().body(new MultiResponseDto<>(purchase));
     }
 
+    // 마이페이지 정기결제 내역
+    @GetMapping("/purchase/subscription")
+    public ResponseEntity getSubscriptionOnMyPage(@AuthenticationPrincipal OAuth2User oauth,
+                                                  Pageable pageable) {
+        Page<GetSubscriptionOnMyPage> purchase = purchaseService.getSubscriptionOnMyPage(oauth, pageable);
+        return ResponseEntity.ok().body(new MultiResponseDto<>(purchase));
+    }
+
     @GetMapping("/purchase/{purchaseId}")
     public ResponseEntity getPurchaseDetail(@PathVariable("purchaseId") Long purchaseId,
                                               @AuthenticationPrincipal OAuth2User oauth) {
-        GetPurchaseInfo purchase = purchaseService.getPurchaseInfo(purchaseId, oauth);
+        GetPurchaseDetail purchase = purchaseService.getPurchaseDetail(purchaseId, oauth);
         return ResponseEntity.ok()
                 .body(new WrapPurchaseInfo<>(purchase.getOrderLists(), purchase.getAddressInfo(), purchase.getPriceInfo()));
     }

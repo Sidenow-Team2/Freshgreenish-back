@@ -1,8 +1,10 @@
 package com.sidenow.freshgreenish.domain.purchase.repository;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import com.sidenow.freshgreenish.domain.delivery.entity.QDelivery;
 import com.sidenow.freshgreenish.domain.product.entity.Product;
 import com.sidenow.freshgreenish.domain.purchase.dto.*;
+import com.sidenow.freshgreenish.domain.purchase.entity.PurchaseStatus;
 import jakarta.persistence.EntityManager;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -13,6 +15,7 @@ import java.util.List;
 
 import static com.sidenow.freshgreenish.domain.address.entity.QAddress.address;
 import static com.sidenow.freshgreenish.domain.basket.entity.QProductBasket.productBasket;
+import static com.sidenow.freshgreenish.domain.delivery.entity.QDelivery.delivery;
 import static com.sidenow.freshgreenish.domain.payment.entity.QPaymentInfo.paymentInfo;
 import static com.sidenow.freshgreenish.domain.product.entity.QProduct.product;
 import static com.sidenow.freshgreenish.domain.purchase.entity.QProductPurchase.productPurchase;
@@ -36,11 +39,12 @@ public class PurchaseRepositoryImpl implements CustomPurchaseRepository{
                                 product.productFirstImage,
                                 purchase.count,
                                 product.discountPrice
-                        )).from(purchase)
-                        .leftJoin(product).on(product.productId.eq(purchase.productId))
-                        .where(purchase.purchaseId.eq(purchaseId)
-                                .and(purchase.userId.eq(userId)))
-                        .fetch();
+                        ))
+                .from(purchase)
+                .leftJoin(product).on(product.productId.eq(purchase.productId))
+                .where(purchase.purchaseId.eq(purchaseId)
+                        .and(purchase.userId.eq(userId)))
+                .fetch();
     }
 
     @Override
@@ -52,12 +56,34 @@ public class PurchaseRepositoryImpl implements CustomPurchaseRepository{
                                 product.productFirstImage,
                                 productBasket.count,
                                 product.discountPrice
-                        )).from(productPurchase)
+                        ))
+                .from(productPurchase)
                 .leftJoin(product).on(product.productId.eq(productPurchase.product.productId))
                 .leftJoin(productBasket).on(productBasket.product.productId.eq(productPurchase.product.productId))
                 .where(productPurchase.purchase.purchaseId.eq(purchaseId)
                         .and(productBasket.basket.basketId.eq(basketId))
-                        .and(purchase.userId.eq(userId)))
+                        .and(purchase.userId.eq(userId))
+                        .and(productBasket.isRegular.eq(false)))
+                .fetch();
+    }
+
+    @Override
+    public List<OrderList> getRegularOrderList(Long basketId, Long purchaseId, Long userId) {
+        return queryFactory.select(
+                        new QOrderList(
+                                product.productId,
+                                product.title,
+                                product.productFirstImage,
+                                productBasket.count,
+                                product.discountPrice
+                        ))
+                .from(productPurchase)
+                .leftJoin(product).on(product.productId.eq(productPurchase.product.productId))
+                .leftJoin(productBasket).on(productBasket.product.productId.eq(productPurchase.product.productId))
+                .where(productPurchase.purchase.purchaseId.eq(purchaseId)
+                        .and(productBasket.basket.basketId.eq(basketId))
+                        .and(purchase.userId.eq(userId))
+                        .and(productBasket.isRegular.eq(true)))
                 .fetch();
     }
 
@@ -76,8 +102,48 @@ public class PurchaseRepositoryImpl implements CustomPurchaseRepository{
                 ).from(purchase)
                 .leftJoin(paymentInfo).on(paymentInfo.paymentId.eq(purchase.purchaseId))
                 .leftJoin(product).on(product.productId.eq(purchase.productId))
+                .leftJoin(address).on(address.user.userId.eq(purchase.userId))
                 .distinct()
-                .where(purchase.userId.eq(userId))
+                .where(purchase.userId.eq(userId)
+                        .and(purchase.isRegularDelivery.eq(false))
+                        .and(address.addressId.eq(purchase.addressId))
+                        .and(purchase.purchaseStatus.ne(PurchaseStatus.PAY_IN_PROGRESS)))
+                .orderBy(purchase.purchaseId.desc())
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+
+        long total = result.size();
+        return new PageImpl<>(result, pageable, total);
+    }
+
+    @Override
+    public Page<GetSubscriptionOnMyPage> getSubscriptionOnMyPage(Long userId, Pageable pageable) {
+        List<GetSubscriptionOnMyPage> result = queryFactory.select(
+                        new QGetSubscriptionOnMyPage(
+                                purchase,
+                                paymentInfo.orderName,
+                                address,
+                                product.title,
+                                product.productFirstImage,
+                                product.discountPrice,
+                                product.productId,
+                                delivery.deliveryId,
+                                delivery.deliveryDate,
+                                delivery.firstPaymentDate,
+                                delivery.thisMonthPaymentDate,
+                                delivery.nextPaymentDate
+                        )
+                ).from(purchase)
+                .leftJoin(paymentInfo).on(paymentInfo.paymentId.eq(purchase.purchaseId))
+                .leftJoin(product).on(product.productId.eq(purchase.productId))
+                .leftJoin(address).on(address.user.userId.eq(purchase.userId))
+                .leftJoin(delivery).on(delivery.purchaseId.eq(purchase.purchaseId))
+                .distinct()
+                .where(purchase.userId.eq(userId)
+                        .and(purchase.isRegularDelivery.eq(true))
+                        .and(address.addressId.eq(purchase.addressId))
+                        .and(purchase.purchaseStatus.ne(PurchaseStatus.PAY_IN_PROGRESS)))
                 .orderBy(purchase.purchaseId.desc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())

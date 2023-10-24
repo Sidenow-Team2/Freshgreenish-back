@@ -16,15 +16,26 @@ public interface KakaoPayFeignClient {
                                       @SpringQueryMap ReadyToKakaoPayInfo params);
 
     @PostMapping(value = "/v1/payment/approve")
-    KakaoPaySuccessInfo successForPayment(
-            @RequestHeader(PayConstants.AUTHORIZATION) String authorization,
-            @RequestHeader(PayConstants.ACCEPT) String accept,
-            @RequestHeader(PayConstants.CONTENT_TYPE) String contentType,
-            @SpringQueryMap RequestForKakaoPayInfo query);
+    KakaoPaySuccessInfo successForPayment(@RequestHeader(PayConstants.AUTHORIZATION) String authorization,
+                                          @RequestHeader(PayConstants.ACCEPT) String accept,
+                                          @RequestHeader(PayConstants.CONTENT_TYPE) String contentType,
+                                          @SpringQueryMap RequestForKakaoPayInfo query);
 
     @PostMapping(value = "/v1/payment/cancel")
     KakaoPayCancelInfo cancelForPayment(@RequestHeader(PayConstants.AUTHORIZATION) String authorization,
                                         @RequestHeader(PayConstants.ACCEPT) String accept,
                                         @RequestHeader(PayConstants.CONTENT_TYPE) String contentType,
                                         @SpringQueryMap RequestForKakaoPayCancelInfo params);
+
+    @PostMapping(value = "/v1/payment/subscription")
+    KakaoSubReadyInfo readyForSubscription(@RequestHeader(PayConstants.AUTHORIZATION) String authorization,
+                                           @RequestHeader(PayConstants.ACCEPT) String accept,
+                                           @RequestHeader(PayConstants.CONTENT_TYPE) String contentType,
+                                           @SpringQueryMap ReadyToKakaoSubInfo params);
+
+    @PostMapping(value = "/v1/payment/manage/subscription/inactive")
+    KakaoPayRegularCancelInfo cancelForSubscription(@RequestHeader(PayConstants.AUTHORIZATION) String authorization,
+                                                    @RequestHeader(PayConstants.ACCEPT) String accept,
+                                                    @RequestHeader(PayConstants.CONTENT_TYPE) String contentType,
+                                                    @SpringQueryMap RequestForKakaoRegularPayCancel params);
 }
