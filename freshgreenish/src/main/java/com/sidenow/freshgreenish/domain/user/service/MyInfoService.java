@@ -23,6 +23,11 @@ public class MyInfoService {
     private final AddressRepository addressRepository;
     private final UserImageFileHandler fileHandler;
 
+    public void getUserInfo(OAuth2User oauth) {
+
+
+    }
+
     public void changeNickname(OAuth2User oauth, String nickname) {
         if (userRepository.existsByNickname(nickname)) {
             throw new BusinessLogicException(ExceptionCode.DUPLICATE_NICKNAME);
@@ -59,6 +64,7 @@ public class MyInfoService {
                         NullPointerException::new
                 );
     }
+
 
 
 }

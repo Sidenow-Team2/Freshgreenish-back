@@ -7,5 +7,10 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-public class MyInfoDTO {
+public class GetMyInfo {
+
+    private String filePath;
+    private String nickname;
+    private Integer saved_money;
+
 }
