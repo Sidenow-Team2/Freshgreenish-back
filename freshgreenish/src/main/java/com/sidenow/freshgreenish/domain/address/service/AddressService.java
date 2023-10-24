@@ -187,6 +187,7 @@ public class AddressService {
                 .phoneNumber(post.getPhoneNumber())
                 .build();
 
+        address.setIsInMyPage(false);
         addressDbService.saveAddress(address);
 
         Purchase findPurchase = purchaseDbService.ifExistsReturnPurchase(purchaseId);

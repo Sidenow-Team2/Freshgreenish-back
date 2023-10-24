@@ -62,4 +62,14 @@ public class PurchaseDbService {
     public PriceInfo getPriceInfo(Long purchaseId, Long userId) {
         return purchaseRepository.getPriceInfo(purchaseId, userId);
     }
+
+    public Boolean ifExitsSubscriptionReturnBoolean(Long userId) {
+        if (getSubscriptionCount(userId) > 0) {
+            return true;
+        } else return false;
+    }
+
+    public Integer getSubscriptionCount(Long userId) {
+        return purchaseRepository.getSubscriptCount(userId);
+    }
 }

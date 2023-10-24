@@ -31,6 +31,7 @@ public class Review extends Auditable {
     @Column(length = 1000)
     private String reviewContent;
 
+    private Long purchaseId;
     private Long productId;
     private Long userId;
 
@@ -41,10 +42,12 @@ public class Review extends Auditable {
     private List<ReviewImage> reviewImages = new ArrayList<>();
 
     @Builder
-    public Review(Long reviewId, String reviewTitle, String reviewContent, Long productId, Long userId) {
+    public Review(Long reviewId, String reviewTitle, String reviewContent,
+                  Long purchaseId, Long productId, Long userId) {
         this.reviewId = reviewId;
         this.reviewTitle = reviewTitle;
         this.reviewContent = reviewContent;
+        this.purchaseId = purchaseId;
         this.productId = productId;
         this.userId = userId;
     }

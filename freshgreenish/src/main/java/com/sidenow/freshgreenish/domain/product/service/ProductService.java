@@ -7,6 +7,7 @@ import com.sidenow.freshgreenish.domain.product.entity.ProductImage;
 import com.sidenow.freshgreenish.domain.user.entity.User;
 import com.sidenow.freshgreenish.global.exception.BusinessLogicException;
 import com.sidenow.freshgreenish.global.exception.ExceptionCode;
+import com.sidenow.freshgreenish.global.file.AwsS3Service;
 import com.sidenow.freshgreenish.global.file.FileHandler;
 import com.sidenow.freshgreenish.global.file.UploadFile;
 import jakarta.transaction.Transactional;
@@ -27,6 +28,7 @@ import java.util.Objects;
 @RequiredArgsConstructor
 public class ProductService {
     private final ProductDbService productDbService;
+    private final AwsS3Service awsS3Service;
     private final FileHandler fileHandler;
 
     @SneakyThrows
@@ -43,6 +45,34 @@ public class ProductService {
         List<UploadFile> productImages = fileHandler.uploadFileList(productImage);
         UploadFile uploadFile = fileHandler.uploadFile(productDetailImage);
         findProduct.setProductDetailImage(uploadFile.getFilePath());
+        findProduct.setProductDetailImageName(uploadFile.getFileName());
+
+        productDbService.saveProductImage(productImages, findProduct);
+
+        Product newProduct = productDbService.saveAndReturnProduct(findProduct);
+        newProduct.setProductFirstImage(findProduct.getProductImages());
+
+        productDbService.saveProduct(newProduct);
+    }
+
+    @SneakyThrows
+    @Transactional
+    public void postProductS3(PostProduct post, List<MultipartFile> productImage, MultipartFile productDetailImage, OAuth2User oauth){
+        User findUser = productDbService.findUser(oauth);
+
+        Product findProduct = returnProductFromPost(post);
+        Integer discountPrice =
+                calculateDiscountPrice(post.getPrice(), findProduct.getPrice(), post.getDiscountRate(), findProduct.getDiscountRate());
+        findProduct.setDiscountPrice(discountPrice);
+        findProduct.setProductNumber(createProductNumber(findProduct.getCreatedAt()));
+
+        String productImageDir = "productImage";
+        List<UploadFile> productImages = awsS3Service.uploadFileList(productImage, productImageDir);
+
+        String productDetailImageDir = "productDetailImage";
+        UploadFile uploadFile = awsS3Service.uploadfile(productDetailImage, productDetailImageDir);
+        findProduct.setProductDetailImage(uploadFile.getFilePath());
+        findProduct.setProductDetailImageName(uploadFile.getFileName());
 
         productDbService.saveProductImage(productImages, findProduct);
 
@@ -84,6 +114,53 @@ public class ProductService {
         if (!productDetailImage.isEmpty()) {
             UploadFile uploadFile = fileHandler.uploadFile(productDetailImage);
             findProduct.setProductDetailImage(uploadFile.getFilePath());
+            findProduct.setProductDetailImageName(uploadFile.getFileName());
+        }
+
+        Product newProduct = productDbService.saveAndReturnProduct(findProduct);
+        newProduct.setProductFirstImage(findProduct.getProductImages());
+
+        productDbService.saveProduct(newProduct);
+    }
+
+    @SneakyThrows
+    @Transactional
+    public void editProductS3(Long productId, EditProduct edit, List<MultipartFile> productImage, MultipartFile productDetailImage, OAuth2User oauth) {
+        User findUser = productDbService.findUser(oauth);
+
+        Product findProduct = productDbService.ifExistsReturnProduct(productId);
+        findProduct.editProduct(edit);
+        Integer discountPrice =
+                calculateDiscountPrice(edit.getPrice(), findProduct.getPrice(), edit.getDiscountRate(), findProduct.getDiscountRate());
+        findProduct.setDiscountPrice(discountPrice);
+
+        String productImageDir = "productImage";
+        List<Long> deleteImageId = edit.getDeleteImageId();
+        List<ProductImage> originalProductImage = new ArrayList<>(findProduct.getProductImages());
+        if (originalProductImage.size() != 0) {
+            for (Long imageId : deleteImageId) {
+                for (int j = 0; j < originalProductImage.size(); j++) {
+                    if (Objects.equals(originalProductImage.get(j).getProductImageId(), imageId)) {
+                        awsS3Service.delete(originalProductImage.get(j).getFilePath(), productImageDir);
+                        originalProductImage.remove(j);
+                        break;
+                    }
+                }
+            }
+        }
+
+        List<UploadFile> productImages = fileHandler.uploadFileList(productImage);
+        findProduct.editProductImage(originalProductImage);
+
+        productDbService.saveProductImage(productImages, findProduct);
+
+        if (!productDetailImage.isEmpty()) {
+            String productDetailImageDir = "productDetailImage";
+            awsS3Service.delete(findProduct.getProductDetailImageName(), productDetailImageDir);
+            UploadFile uploadFile = awsS3Service.uploadfile(productDetailImage, productDetailImageDir);
+
+            findProduct.setProductDetailImage(uploadFile.getFilePath());
+            findProduct.setProductDetailImageName(uploadFile.getFileName());
         }
 
         Product newProduct = productDbService.saveAndReturnProduct(findProduct);

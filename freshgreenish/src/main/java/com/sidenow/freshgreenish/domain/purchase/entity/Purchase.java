@@ -54,6 +54,8 @@ public class Purchase extends Auditable {
 
     @Enumerated(value = EnumType.STRING)
     private PurchaseStatus purchaseStatus;
+    @Enumerated(value = EnumType.STRING)
+    private SubscriptionStatus subscriptionStatus;
 
     private Boolean isRegularDelivery;
 
@@ -84,6 +86,10 @@ public class Purchase extends Auditable {
 
     public void setStatus(PurchaseStatus status) {
         this.purchaseStatus = status;
+    }
+
+    public void setSubStatus(SubscriptionStatus status) {
+        this.subscriptionStatus = status;
     }
 
     public void addPaymentInfo(PaymentInfo paymentInfo) {

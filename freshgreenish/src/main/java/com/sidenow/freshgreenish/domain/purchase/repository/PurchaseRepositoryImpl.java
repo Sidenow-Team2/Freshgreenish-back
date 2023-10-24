@@ -1,10 +1,10 @@
 package com.sidenow.freshgreenish.domain.purchase.repository;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import com.sidenow.freshgreenish.domain.delivery.entity.QDelivery;
 import com.sidenow.freshgreenish.domain.product.entity.Product;
 import com.sidenow.freshgreenish.domain.purchase.dto.*;
 import com.sidenow.freshgreenish.domain.purchase.entity.PurchaseStatus;
+import com.sidenow.freshgreenish.domain.purchase.entity.SubscriptionStatus;
 import jakarta.persistence.EntityManager;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -142,8 +142,7 @@ public class PurchaseRepositoryImpl implements CustomPurchaseRepository{
                 .distinct()
                 .where(purchase.userId.eq(userId)
                         .and(purchase.isRegularDelivery.eq(true))
-                        .and(address.addressId.eq(purchase.addressId))
-                        .and(purchase.purchaseStatus.ne(PurchaseStatus.PAY_IN_PROGRESS)))
+                        .and(purchase.subscriptionStatus.ne(SubscriptionStatus.NOT_USE_SUBSCRIPTION)))
                 .orderBy(purchase.purchaseId.desc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
@@ -191,5 +190,16 @@ public class PurchaseRepositoryImpl implements CustomPurchaseRepository{
                 .where(purchase.purchaseId.eq(purchaseId)
                         .and(purchase.userId.eq(userId)))
                 .fetchOne();
+    }
+
+    @Override
+    public Integer getSubscriptCount(Long userId) {
+        return Math.toIntExact(queryFactory
+                .select(purchase.count())
+                .from(purchase)
+                .where(purchase.userId.eq(userId)
+                        .and(purchase.isRegularDelivery.eq(true))
+                        .and(purchase.subscriptionStatus.eq(SubscriptionStatus.DURING_SUBSCRIPTION)))
+                .fetchOne());
     }
 }

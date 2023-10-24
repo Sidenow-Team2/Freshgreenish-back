@@ -20,4 +20,6 @@ public interface CustomPurchaseRepository {
     AddressInfo getAddressInfo(Long addressId);
 
     PriceInfo getPriceInfo(Long purchaseId, Long userId);
+
+    Integer getSubscriptCount(Long userId);
 }
