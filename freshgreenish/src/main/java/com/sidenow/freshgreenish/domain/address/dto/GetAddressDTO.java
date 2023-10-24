@@ -8,7 +8,6 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class GetAddressDTO {
-
     private Long addressId;
     private String addressNickname;
     private String addressMain;
@@ -20,6 +19,7 @@ public class GetAddressDTO {
         this.addressMain = addressMain;
         this.isDefaultAddress = isDefaultAddress;
     }
+
     public GetAddressDTO(String addressNickname, String addressMain, Boolean isDefaultAddress) {
         this.addressNickname = addressNickname;
         this.addressMain = addressMain;

@@ -23,7 +23,7 @@ public class AddressController {
     @GetMapping("/mypage/address")
     public ResponseEntity getAddress(@AuthenticationPrincipal OAuth2User oauth) {
         List<GetAddressDTO> dtos = addressService.readAddress(oauth);
-        return ResponseEntity.ok(dtos);
+        return ResponseEntity.ok().body(new SingleResponseDto<>(dtos));
     }
 
     @PostMapping("/mypage/address/create")
@@ -45,7 +45,7 @@ public class AddressController {
     @DeleteMapping("/mypage/address/delete")
     public ResponseEntity deleteAddress(@RequestParam("addressId") Long addressId) {
         addressService.deleteAddress(addressId);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
     @PostMapping("/purchase/{purchaseId}/address/create")
