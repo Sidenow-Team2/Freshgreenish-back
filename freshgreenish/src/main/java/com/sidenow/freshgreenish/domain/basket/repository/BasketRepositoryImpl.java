@@ -95,7 +95,7 @@ public class BasketRepositoryImpl implements CustomBasketRepository {
     @Override
     public Integer getDiscountedTotalBasketPrice(Long basketId) {
         return queryFactory
-                .select(productBasket.discountedTotalPrice.sum())
+                .select(productBasket.totalPrice.sum())
                 .from(productBasket)
                 .where(productBasket.basket.basketId.eq(basketId)
                         .and(productBasket.isRegular.eq(false)))
@@ -105,7 +105,7 @@ public class BasketRepositoryImpl implements CustomBasketRepository {
     @Override
     public Integer getDiscountedTotalRegularPrice(Long basketId) {
         return queryFactory
-                .select(productBasket.discountedTotalPrice.sum())
+                .select(productBasket.totalPrice.sum())
                 .from(productBasket)
                 .where(productBasket.basket.basketId.eq(basketId)
                         .and(productBasket.isRegular.eq(true)))
@@ -115,7 +115,7 @@ public class BasketRepositoryImpl implements CustomBasketRepository {
     @Override
     public Integer getProductPriceInBasket(Long productId, Long basketId) {
         return queryFactory
-                .select(productBasket.discountedTotalPrice)
+                .select(productBasket.totalPrice)
                 .from(productBasket)
                 .where(productBasket.basket.basketId.eq(basketId)
                         .and(productBasket.product.productId.eq(productId))
@@ -126,7 +126,7 @@ public class BasketRepositoryImpl implements CustomBasketRepository {
     @Override
     public Integer getProductPriceInRegular(Long productId, Long basketId) {
         return queryFactory
-                .select(productBasket.discountedTotalPrice)
+                .select(productBasket.totalPrice)
                 .from(productBasket)
                 .where(productBasket.basket.basketId.eq(basketId)
                         .and(productBasket.product.productId.eq(productId))

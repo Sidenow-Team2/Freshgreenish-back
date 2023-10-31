@@ -1,6 +1,5 @@
 package com.sidenow.freshgreenish.domain.purchase.service;
 
-import com.sidenow.freshgreenish.domain.address.service.AddressDbService;
 import com.sidenow.freshgreenish.domain.basket.entity.Basket;
 import com.sidenow.freshgreenish.domain.basket.service.BasketDbService;
 import com.sidenow.freshgreenish.domain.payment.entity.PaymentInfo;
@@ -34,7 +33,6 @@ public class PurchaseService {
     private final PaymentDbService paymentDbService;
     private final ProductDbService productDbService;
     private final BasketDbService basketDbService;
-    private final AddressDbService addressDbService;
     private final UserDbService userDbService;
 
     public void createSinglePurchase(Long productId, OAuth2User oauth, PostPurchase post) {
@@ -50,8 +48,8 @@ public class PurchaseService {
                 .count(post.getCount())
                 .totalCount(post.getCount())
                 .isRegularDelivery(false)
-                .totalPrice(productDbService.getPrice(productId) * post.getCount())
-                .totalPriceBeforeUsePoint(productDbService.getPrice(productId) * post.getCount())
+                .totalPrice(post.getTotalPrice())
+                .totalPriceBeforeUsePoint(post.getTotalPrice())
                 .build();
 
         purchase.setStatus(PurchaseStatus.PAY_IN_PROGRESS);
@@ -103,8 +101,8 @@ public class PurchaseService {
         Purchase findPurchase = purchaseDbService.saveAndReturnPurchase(purchase);
 
         findPurchase.setPurchaseNumber(createPurchaseNumber(findPurchase.getCreatedAt()));
-        findPurchase.setTotalPrice(calculateTotalPrice(post.getProductIdList(), findBasket.getBasketId()));
-        findPurchase.setTotalPriceBeforeUsePoint(calculateTotalPrice(post.getProductIdList(), findBasket.getBasketId()));
+        findPurchase.setTotalPrice(post.getTotalPrice());
+        findPurchase.setTotalPriceBeforeUsePoint(post.getTotalPrice());
 
         createAndSaveProductPurchase(post.getProductIdList(), findPurchase);
 
@@ -139,8 +137,8 @@ public class PurchaseService {
         Purchase findPurchase = purchaseDbService.saveAndReturnPurchase(purchase);
 
         findPurchase.setPurchaseNumber(createPurchaseNumber(findPurchase.getCreatedAt()));
-        findPurchase.setTotalPrice(calculateTotalRegularPrice(post.getProductIdList(), findBasket.getBasketId()));
-        findPurchase.setTotalPriceBeforeUsePoint(calculateTotalRegularPrice(post.getProductIdList(), findBasket.getBasketId()));
+        findPurchase.setTotalPrice(post.getTotalPrice());
+        findPurchase.setTotalPriceBeforeUsePoint(post.getTotalPrice());
 
         createAndSaveProductPurchase(post.getProductIdList(), findPurchase);
 
@@ -154,7 +152,7 @@ public class PurchaseService {
         paymentDbService.savePayment(paymentInfo);
     }
 
-    public void createAllPurchase(OAuth2User oauth) {
+    public void createAllPurchase(OAuth2User oauth, PostAllPurchase post) {
         Long userId = userDbService.findUserIdByOauth(oauth);
         Basket findBasket = basketDbService.ifExistsReturnBasketByUserId(userId);
 
@@ -166,8 +164,8 @@ public class PurchaseService {
                 .usedPoints(0)
                 .count(1)
                 .isRegularDelivery(false)
-                .totalPrice(findBasket.getDiscountedBasketTotalPrice())
-                .totalPriceBeforeUsePoint(findBasket.getDiscountedBasketTotalPrice())
+                .totalPrice(post.getTotalPrice())
+                .totalPriceBeforeUsePoint(post.getTotalPrice())
                 .build();
 
         purchase.setStatus(PurchaseStatus.PAY_IN_PROGRESS);
@@ -189,7 +187,7 @@ public class PurchaseService {
         paymentDbService.savePayment(paymentInfo);
     }
 
-    public void createRegularPurchaseAll(OAuth2User oauth) {
+    public void createRegularPurchaseAll(OAuth2User oauth, PostAllPurchase post) {
         Long userId = userDbService.findUserIdByOauth(oauth);
         Basket findBasket = basketDbService.ifExistsReturnBasketByUserId(userId);
 
@@ -201,8 +199,8 @@ public class PurchaseService {
                 .usedPoints(0)
                 .count(1)
                 .isRegularDelivery(true)
-                .totalPrice(findBasket.getDiscountedBasketTotalPrice())
-                .totalPriceBeforeUsePoint(findBasket.getDiscountedBasketTotalPrice())
+                .totalPrice(post.getTotalPrice())
+                .totalPriceBeforeUsePoint(post.getTotalPrice())
                 .build();
 
         purchase.setStatus(PurchaseStatus.PAY_IN_PROGRESS);
@@ -273,10 +271,6 @@ public class PurchaseService {
     public void usedPointInPurchase(Long purchaseId, OAuth2User oauth, PostUsePoint post) {
         Purchase findPurchase = purchaseDbService.ifExistsReturnPurchase(purchaseId);
         User findUser = userDbService.findUserByEmail(oauth);
-
-        // TODO : test 용 코드, 추후 배포 시 코드 삭제
-        findUser.setSaved_money(5000);
-        userDbService.saveUser(findUser);
 
         if (findUser.getSaved_money() < post.getPoint()) {
             new BusinessLogicException(ExceptionCode.POINTS_CANNOT_EXCEEDED);
@@ -370,8 +364,6 @@ public class PurchaseService {
                         .isExists(false)
                         .build();
     }
-
-
 
     private String createPurchaseNumber(LocalDateTime createdAt) {
         String createDay = createdAt.toString();

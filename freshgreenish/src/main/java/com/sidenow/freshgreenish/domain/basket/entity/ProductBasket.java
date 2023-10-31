@@ -16,7 +16,6 @@ public class ProductBasket{
     private Long productBasketId;
     private Integer count;
     private Integer totalPrice = 0;
-    private Integer discountedTotalPrice = 0;
     private Boolean isRegular = false;
 
     @JsonBackReference
@@ -30,12 +29,10 @@ public class ProductBasket{
     private Basket basket;
 
     @Builder
-    public ProductBasket(Long productBasketId, Integer count, Integer totalPrice,
-                         Integer discountedTotalPrice, Boolean isRegular) {
+    public ProductBasket(Long productBasketId, Integer count, Integer totalPrice, Boolean isRegular) {
         this.productBasketId = productBasketId;
         this.count = count;
         this.totalPrice = totalPrice;
-        this.discountedTotalPrice = discountedTotalPrice;
         this.isRegular = isRegular;
     }
 
@@ -45,13 +42,5 @@ public class ProductBasket{
 
     public void addBasket(Basket basket) {
         this.basket = basket;
-    }
-
-    public void addCount() {
-        count++;
-    }
-
-    public void reduceCount() {
-        count--;
     }
 }
