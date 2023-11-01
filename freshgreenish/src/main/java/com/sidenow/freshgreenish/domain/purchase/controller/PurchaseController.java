@@ -47,8 +47,9 @@ public class PurchaseController {
 
     // 장바구니 - 전체 구매
     @PostMapping("/purchase/basket/all")
-    public ResponseEntity createAllPurchase(@AuthenticationPrincipal OAuth2User oauth) {
-        purchaseService.createAllPurchase(oauth);
+    public ResponseEntity createAllPurchase(@RequestBody @Valid PostAllPurchase post,
+                                            @AuthenticationPrincipal OAuth2User oauth) {
+        purchaseService.createAllPurchase(oauth, post);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
@@ -71,8 +72,9 @@ public class PurchaseController {
 
     // 장바구니 - 전체 정기 결제
     @PostMapping("/purchase/subscription/basket/all")
-    public ResponseEntity createRegularPurchaseAll(@AuthenticationPrincipal OAuth2User oauth) {
-        purchaseService.createRegularPurchaseAll(oauth);
+    public ResponseEntity createRegularPurchaseAll(@RequestBody @Valid PostAllPurchase post,
+                                                   @AuthenticationPrincipal OAuth2User oauth) {
+        purchaseService.createRegularPurchaseAll(oauth, post);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 

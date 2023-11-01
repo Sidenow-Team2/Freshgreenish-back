@@ -2,7 +2,7 @@ package com.sidenow.freshgreenish.domain.basket.controller;
 
 import com.sidenow.freshgreenish.domain.basket.dto.*;
 import com.sidenow.freshgreenish.domain.basket.service.BasketService;
-import com.sidenow.freshgreenish.domain.user.service.UserDbService;
+import com.sidenow.freshgreenish.domain.dto.MultiResponseDto;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -18,14 +18,27 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/basket")
 public class BasketController {
     private final BasketService basketService;
-    private final UserDbService userDbService;
 
-    @PostMapping("/product/{productId}/{type}")
+    @PostMapping("/product/{productId}/irregular")
     public ResponseEntity addProductInBasket(@PathVariable("productId") Long productId,
-                                             @PathVariable("type") String type,
                                              @RequestBody @Valid PostBasket post,
                                              @AuthenticationPrincipal OAuth2User oauth) {
-        basketService.addProductInBasket(productId, oauth, post, type);
+        basketService.addProductInBasket(productId, oauth, post);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+    @PostMapping("/product/{productId}/regular")
+    public ResponseEntity addProductInRegularBasket(@PathVariable("productId") Long productId,
+                                                    @RequestBody @Valid PostBasket post,
+                                                    @AuthenticationPrincipal OAuth2User oauth) {
+        basketService.addProductInRegularBasket(productId, oauth, post);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+    @PostMapping("/product/{productId}/add")
+    public ResponseEntity addOneProductInBasket(@PathVariable("productId") Long productId,
+                                                @AuthenticationPrincipal OAuth2User oauth) {
+        basketService.addOneProductInBasket(productId, oauth);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
@@ -38,13 +51,18 @@ public class BasketController {
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/{type}")
+    @GetMapping("/irregular")
     public ResponseEntity getBasketList(Pageable pageable,
-                                        @PathVariable("type") String type,
                                         @AuthenticationPrincipal OAuth2User oauth) {
-        Page<GetBasket> basket = basketService.getBasketList(oauth, pageable, type);
-        TotalPriceInfo info = basketService.getTotalPriceInfo(oauth, type);
-        return ResponseEntity.ok().body(new WrapBasket<>(basket, info));
+        Page<GetBasket> basket = basketService.getBasketList(oauth, pageable);
+        return ResponseEntity.ok().body(new MultiResponseDto<>(basket));
+    }
+
+    @GetMapping("/regular")
+    public ResponseEntity getRegularList(Pageable pageable,
+                                        @AuthenticationPrincipal OAuth2User oauth) {
+        Page<GetBasket> basket = basketService.getRegularList(oauth, pageable);
+        return ResponseEntity.ok().body(new MultiResponseDto<>(basket));
     }
 
 
