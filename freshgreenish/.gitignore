@@ -9,7 +9,7 @@ build/
 */.idea
 */build
 
-#C:/projects/freshgreenish-back/freshgreenish/src/main/resources/application.yml
+Dockerfile
 src/main/resources/application.yml
 src/main/resources/application-oauth.yml
 src/main/resources/application-mail.yml
