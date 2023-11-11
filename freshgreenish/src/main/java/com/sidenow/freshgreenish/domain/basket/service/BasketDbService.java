@@ -37,11 +37,7 @@ public class BasketDbService {
         return Basket.builder()
                 .userId(userId)
                 .totalBasketPrice(0)
-                .discountedBasketPrice(0)
-                .discountedBasketTotalPrice(0)
                 .totalRegularPrice(0)
-                .discountedRegularTotalPrice(0)
-                .discountedRegularPrice(0)
                 .build();
     }
 
@@ -87,14 +83,6 @@ public class BasketDbService {
 
     public List<Long> getProductIdInRegular(Long basketId) {
         return basketRepository.getProductIdInRegular(basketId);
-    }
-
-    public Integer getTotalBasketPrice(Long basketId) {
-        return basketRepository.getTotalBasketPrice(basketId);
-    }
-
-    public Integer getTotalRegularPrice(Long basketId) {
-        return basketRepository.getTotalRegularPrice(basketId);
     }
 
     public Integer getDiscountedTotalBasketPrice(Long basketId) {

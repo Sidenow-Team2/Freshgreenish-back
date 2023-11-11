@@ -3,7 +3,6 @@ package com.sidenow.freshgreenish.domain.basket.service;
 import com.sidenow.freshgreenish.domain.basket.dto.DeleteBasket;
 import com.sidenow.freshgreenish.domain.basket.dto.GetBasket;
 import com.sidenow.freshgreenish.domain.basket.dto.PostBasket;
-import com.sidenow.freshgreenish.domain.basket.dto.TotalPriceInfo;
 import com.sidenow.freshgreenish.domain.basket.entity.Basket;
 import com.sidenow.freshgreenish.domain.basket.entity.ProductBasket;
 import com.sidenow.freshgreenish.domain.product.entity.Product;
@@ -27,18 +26,27 @@ public class BasketService {
     private final ProductDbService productDbService;
     private final UserDbService userDbService;
 
-    public void addProductInBasket(Long productId, OAuth2User oauth, PostBasket post, String type) {
+    public void addProductInBasket(Long productId, OAuth2User oauth, PostBasket post) {
         Basket findBasket = basketDbService.ifExistsReturnBasket(userDbService.findUserIdByOauth(oauth));
         Product findProduct = productDbService.ifExistsReturnProduct(productId);
 
-        switch (type) {
-            case "regular":
-                addProductRegularBasket(productId, findBasket, post, findProduct);
-                break;
-            default:
-                addProductBasket(productId, findBasket, post, findProduct);
-        }
+        addProductBasket(productId, findBasket, post, findProduct);
+        productDbService.saveProduct(findProduct);
+    }
 
+    public void addOneProductInBasket(Long productId, OAuth2User oauth) {
+        Basket findBasket = basketDbService.ifExistsReturnBasket(userDbService.findUserIdByOauth(oauth));
+        Product findProduct = productDbService.ifExistsReturnProduct(productId);
+
+        addOneProductBasket(productId, findBasket, findProduct);
+        productDbService.saveProduct(findProduct);
+    }
+
+    public void addProductInRegularBasket(Long productId, OAuth2User oauth, PostBasket post) {
+        Basket findBasket = basketDbService.ifExistsReturnBasket(userDbService.findUserIdByOauth(oauth));
+        Product findProduct = productDbService.ifExistsReturnProduct(productId);
+
+        addProductRegularBasket(productId, findBasket, post, findProduct);
         productDbService.saveProduct(findProduct);
     }
 
@@ -52,8 +60,7 @@ public class BasketService {
 
             findProductBasket.get().setIsRegular(false);
             findProductBasket.get().setCount(totalCount);
-            findProductBasket.get().setTotalPrice(totalCount * product.getPrice());
-            findProductBasket.get().setDiscountedTotalPrice(totalCount * product.getDiscountPrice());
+            findProductBasket.get().setTotalPrice(totalCount * product.getDiscountPrice());
 
             basket.addProductBasket(findProductBasket.get());
 
@@ -63,8 +70,7 @@ public class BasketService {
             ProductBasket productBasket = ProductBasket.builder()
                     .isRegular(false)
                     .count(post.getCount())
-                    .totalPrice(product.getPrice() * post.getCount())
-                    .discountedTotalPrice(product.getDiscountPrice() * post.getCount())
+                    .totalPrice(product.getDiscountPrice() * post.getCount())
                     .build();
 
             basket.addProductBasket(productBasket);
@@ -73,10 +79,39 @@ public class BasketService {
             productBasket.addProduct(product);
         }
 
-        Basket newBasket = basketDbService.saveAndReturnBasket(basket);
-        calculateTotalPrice(newBasket);
+        basketDbService.saveBasket(basket);
+    }
 
-        basketDbService.saveBasket(newBasket);
+    private void addOneProductBasket(Long productId, Basket basket, Product product) {
+        Optional<ProductBasket> findProductBasket =
+                basketDbService.ifExistFindByProductIdAndBasketIdAndIdRegular(productId, basket.getBasketId(), false);
+
+        if (findProductBasket.isPresent()) {
+            Integer originalCount = findProductBasket.get().getCount();
+            Integer totalCount = originalCount + 1;
+
+            findProductBasket.get().setIsRegular(false);
+            findProductBasket.get().setCount(totalCount);
+            findProductBasket.get().setTotalPrice(totalCount * product.getDiscountPrice());
+
+            basket.addProductBasket(findProductBasket.get());
+
+            findProductBasket.get().addBasket(basket);
+            findProductBasket.get().addProduct(product);
+        } else {
+            ProductBasket productBasket = ProductBasket.builder()
+                    .isRegular(false)
+                    .count(1)
+                    .totalPrice(product.getDiscountPrice())
+                    .build();
+
+            basket.addProductBasket(productBasket);
+
+            productBasket.addBasket(basket);
+            productBasket.addProduct(product);
+        }
+
+        basketDbService.saveBasket(basket);
     }
 
     private void addProductRegularBasket(Long productId, Basket basket, PostBasket post, Product product) {
@@ -89,8 +124,7 @@ public class BasketService {
 
             findProductBasket.get().setIsRegular(true);
             findProductBasket.get().setCount(totalCount);
-            findProductBasket.get().setTotalPrice(totalCount * product.getPrice());
-            findProductBasket.get().setDiscountedTotalPrice(totalCount * product.getDiscountPrice());
+            findProductBasket.get().setTotalPrice(totalCount * product.getDiscountPrice());
 
             basket.addProductBasket(findProductBasket.get());
 
@@ -100,8 +134,7 @@ public class BasketService {
             ProductBasket productBasket = ProductBasket.builder()
                     .isRegular(true)
                     .count(post.getCount())
-                    .totalPrice(product.getPrice() * post.getCount())
-                    .discountedTotalPrice(product.getDiscountPrice() * post.getCount())
+                    .totalPrice(product.getDiscountPrice() * post.getCount())
                     .build();
 
             basket.addProductBasket(productBasket);
@@ -110,15 +143,11 @@ public class BasketService {
             productBasket.addProduct(product);
         }
 
-        Basket newBasket = basketDbService.saveAndReturnBasket(basket);
-        calculateRegularTotalPrice(newBasket);
-
-        basketDbService.saveBasket(newBasket);
+        basketDbService.saveBasket(basket);
     }
 
     public void changeProductCountInBasket(OAuth2User oauth, Long productId, PostBasket post, String type) {
         Basket findBasket = basketDbService.ifExistsReturnBasketByUserId(userDbService.findUserIdByOauth(oauth));
-
         ProductBasket findProductBasket;
 
         switch (type) {
@@ -134,20 +163,10 @@ public class BasketService {
         Integer count = post.getCount();
 
         findProductBasket.setCount(count);
-        findProductBasket.setTotalPrice(count * productDbService.getPrice(findProductBasket.getProduct().getProductId()));
-        findProductBasket.setDiscountedTotalPrice(count * productDbService.getDiscountPrice(findProductBasket.getProduct().getProductId()));
+        findProductBasket.setTotalPrice(count * productDbService.getDiscountPrice(findProductBasket.getProduct().getProductId()));
 
         findBasket.addProductBasket(findProductBasket);
-
-        Basket newBasket = basketDbService.saveAndReturnBasket(findBasket);
-
-        calculateTotalPrice(newBasket);
-
-        basketDbService.saveBasket(newBasket);
-    }
-
-    private void changeProductCount() {
-
+        basketDbService.saveBasket(findBasket);
     }
 
     public void deleteBasket(OAuth2User oauth, DeleteBasket delete, String type) {
@@ -167,9 +186,6 @@ public class BasketService {
         List<Long> deleteId = delete.getDeleteProductId();
 
         basketDbService.deleteAllByProductBasketId(deleteId);
-
-        calculateTotalPrice(findBasket);
-
         basketDbService.saveBasket(findBasket);
     }
 
@@ -178,55 +194,16 @@ public class BasketService {
         List<Long> deleteId = delete.getDeleteProductId();
 
         basketDbService.deleteAllByProductBasketId(deleteId);
-
-        calculateRegularTotalPrice(findBasket);
-
         basketDbService.saveBasket(findBasket);
     }
 
-    public TotalPriceInfo getTotalPriceInfo(OAuth2User oauth, String type) {
-        Basket findBasket = basketDbService.ifExistsReturnBasket(userDbService.findUserIdByOauth(oauth));
-
-        switch (type) {
-            case "regular":
-                return TotalPriceInfo.builder()
-                        .totalBasketPrice(findBasket.getTotalRegularPrice())
-                        .discountedBasketTotalPrice(findBasket.getDiscountedRegularTotalPrice())
-                        .discountedBasketPrice(findBasket.getDiscountedRegularPrice())
-                        .build();
-            default:
-                return TotalPriceInfo.builder()
-                        .totalBasketPrice(findBasket.getTotalBasketPrice())
-                        .discountedBasketTotalPrice(findBasket.getDiscountedBasketTotalPrice())
-                        .discountedBasketPrice(findBasket.getDiscountedBasketPrice())
-                        .build();
-        }
-    }
-
-    private void calculateTotalPrice(Basket basket) {
-        Integer totalBasketPrice = basketDbService.getTotalBasketPrice(basket.getBasketId());
-        Integer discountedTotalPrice = basketDbService.getDiscountedTotalBasketPrice(basket.getBasketId());
-        Integer discountedBasketPrice = totalBasketPrice - discountedTotalPrice;
-
-        basket.setBasketPrice(totalBasketPrice, discountedTotalPrice, discountedBasketPrice);
-    }
-
-    private void calculateRegularTotalPrice(Basket basket) {
-        Integer totalRegularPrice = basketDbService.getTotalRegularPrice(basket.getBasketId());
-        Integer discountedRegularTotalPrice = basketDbService.getDiscountedTotalRegularPrice(basket.getBasketId());
-        Integer discountedRegularPrice = totalRegularPrice - discountedRegularTotalPrice;
-
-        basket.setRegularPrice(totalRegularPrice, discountedRegularTotalPrice, discountedRegularPrice);
-    }
-
-    public Page<GetBasket> getBasketList(OAuth2User oauth, Pageable pageable, String type) {
+    public Page<GetBasket> getBasketList(OAuth2User oauth, Pageable pageable) {
         Long userId = userDbService.findUserIdByOauth(oauth);
+        return basketDbService.getBasketList(userId, pageable);
+    }
 
-        switch (type) {
-            case "regular":
-                return basketDbService.getRegularList(userId, pageable);
-            default:
-                return basketDbService.getBasketList(userId, pageable);
-        }
+    public Page<GetBasket> getRegularList(OAuth2User oauth, Pageable pageable) {
+        Long userId = userDbService.findUserIdByOauth(oauth);
+        return basketDbService.getRegularList(userId, pageable);
     }
 }
