@@ -1,6 +1,5 @@
 package com.sidenow.freshgreenish.global.config.auth.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sidenow.freshgreenish.domain.user.entity.Role;
 import com.sidenow.freshgreenish.domain.user.entity.User;
 import com.sidenow.freshgreenish.domain.user.repository.UserRepository;

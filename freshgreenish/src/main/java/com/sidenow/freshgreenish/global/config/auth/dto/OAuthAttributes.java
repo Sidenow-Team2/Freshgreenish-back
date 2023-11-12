@@ -5,7 +5,6 @@ import com.sidenow.freshgreenish.domain.user.entity.User;
 import lombok.Builder;
 import lombok.Getter;
 
-import java.util.HashMap;
 import java.util.Map;
 
 @Getter

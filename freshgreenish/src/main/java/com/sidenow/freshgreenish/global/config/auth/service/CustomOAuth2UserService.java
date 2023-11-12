@@ -2,10 +2,6 @@ package com.sidenow.freshgreenish.global.config.auth.service;
 
 
 import com.sidenow.freshgreenish.global.config.auth.dto.OAuthAttributes;
-import com.sidenow.freshgreenish.global.config.auth.dto.SessionUser;
-import com.sidenow.freshgreenish.domain.user.entity.User;
-import com.sidenow.freshgreenish.domain.user.repository.UserRepository;
-import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
