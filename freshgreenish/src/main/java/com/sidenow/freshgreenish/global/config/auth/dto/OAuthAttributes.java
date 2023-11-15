@@ -63,7 +63,8 @@ public class OAuthAttributes {  //OAuth2UserService를 통해 가져온 OAuth2Us
                 .email(email)
                 .socialType(socialtype)
                 .filePath(picture)
-                .role(Role.GUEST)
+                .role(Role.USER)
                 .build();
     }
+
 }
