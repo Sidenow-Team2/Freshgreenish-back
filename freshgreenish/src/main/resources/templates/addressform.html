@@ -1,0 +1,27 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<div class="container">
+    <form action="/mypage/address/create" method="post">
+        <div class="form-group">
+            <label>주소지명</label>
+            <input type="text" name="addressNickname" th:value="${addressNickname}">
+            <label>수령인</label>
+            <input type="text" name="recipientName" th:value="${recipientName}">
+            <label>주소</label>
+            <input type="text" name="addressMain" th:value="${addressMain}">
+            <label>상세주소</label>
+            <input type="text" name="addressDetail" th:value="${addressDetail}">
+            <label>우편번호</label>
+            <input type="text"  name="postalCode" th:value="${postalCode}">
+            <label>전화번호</label>
+            <input type="text" name="phoneNumber" th:value="${phoneNumber}">
+
+
+
+        </div>
+        <button type="submit">등록</button>
+    </form>
+</div> <!-- /container -->
+</body>
+</html>

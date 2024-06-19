@@ -1,10 +1,22 @@
 HELP.md
 .gradle
+gradle
 build/
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
 !**/src/test/**/build/
 .idea/
+<<<<<<< HEAD
+=======
+*/.idea
+*/build
+
+Dockerfile
+src/main/resources/application.yml
+src/main/resources/application-oauth.yml
+src/main/resources/application-mail.yml
+src/main/resources/img/**
+>>>>>>> 17ab5defaf031215f06e1f4ee76b62aa92239419
 
 ### STS ###
 .apt_generated

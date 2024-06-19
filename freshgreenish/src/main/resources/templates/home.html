@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>HOME</title>
+</head>
+<body>
+<a href="/login" class="btn btn-info active" role="button">Login</a>
+<a href="/logout" class="btn btn-info active" role="button">Logout</a>
+<div sec:authorize="isAuthenticated()">
+    Logged in as: <span id="user" th:text="${userName}">None</span>
+</div>
+<form name="form" method="post" action="http://localhost:8080/mypage/changeImage" enctype="multipart/form-data">
+    <input type="file" name="filepath" multiple="multiple" value="사진 변경"/>
+    <input type="submit" id="submit" value="확인"/>
+</form>
+<img id="imgId" th:src="${imgUrl}" alt="유저이미지" th:if="${imgUrl != null}" />
+</body>
+</html>
